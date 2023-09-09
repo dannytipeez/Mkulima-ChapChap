@@ -1,0 +1,18 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mkulima chapchap</title>
+</head>
+<body>
+    <div id="content">
+
+        <p>
+            Please go to the following page to activate your account:
+            {{ http }}://localhost:8000{% url 'activate' uidb64=uid token=token %}
+
+            Thanks for using our site!
+    </div>
+</body>
+</html>

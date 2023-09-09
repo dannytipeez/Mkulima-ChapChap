@@ -1,40 +1,64 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+import uuid
+
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.utils import timezone
 
 
-class UserAccountManager(BaseUserManager):
-    def create_user(self, email, name, password=None):
-        if not email:
-            raise ValueError("users must have an email addres")
+from .managers import CustomUserManager
 
-        email = self.normalize_email(email)
-        user = self.model(email=email, name=name)
-        user.set_password(password)
-        user.save()
 
-        return user
-
+# user model
 class UserAccount(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(max_length=255, unique=True)
-    name = models.CharField(max_length=255)
-    phone = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
+    # this fields tie to the roles
+    ADMIN = 1
+    FARMER = 2
+    AGRI_EXPERT = 3
+    SERVICE_PROVIDER = 4
+
+    ROLE_CHOICES = (
+        (ADMIN, "admin"),
+        (FARMER, "farmer"),
+        (AGRI_EXPERT, "agri_expert"),
+        (SERVICE_PROVIDER, "service_provider"),
+    )
+
+    class Meta:
+        verbose_name = "user"
+        verbose_name_plural = "users"
+
+    # roles created here
+    username = models.CharField(max_length=50, unique=True)
+    id = models.UUIDField(
+        primary_key=True,
+        unique=True,
+        editable=False,
+        default=uuid.uuid4,
+        verbose_name="Public identifier",
+    )
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    phone = models.CharField(max_length=30, unique=True)
+    role = models.PositiveSmallIntegerField(
+        choices=ROLE_CHOICES, blank=False, null=False, default=2
+    )
+    county = models.CharField(max_length=100, null=True, blank=True)
+    area = models.CharField(max_length=100, blank=True, null=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
+
+    created_date = models.DateTimeField(default=timezone.now)
+    modified_date = models.DateTimeField(default=timezone.now)
     is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
 
-    objects = UserAccountManager()
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username", "role", "phone"]
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'phone']
-
-    def get_full_name(self):
-        return self.name
-
-    def get_short_name(self):
-        return self.name
-
-    def get_phone(self):
-        return self.phone
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.email
-
