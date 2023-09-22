@@ -2,5 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-
+.bottomSectionContainer {
+    height: 675px;
+}
 

@@ -1,0 +1,20 @@
+{
+    "cards": [
+      {
+        "label": "Number of cows",
+        "details": "23"
+      },
+      {
+        "label": "Number of crops",
+        "details": "2,304"
+      },
+      {
+        "label": "Store capacity",
+        "details": "23/100"
+      },
+      {
+        "label": "Storage capacity",
+        "details": "12/2000"
+      }
+    ]
+  }
