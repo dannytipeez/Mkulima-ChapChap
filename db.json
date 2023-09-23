@@ -1,19 +1,29 @@
 {
-  "posts": [
+  "chartData": [
     {
-      "id": 1,
-      "title": "json-server",
-      "author": "typicode"
-    }
-  ],
-  "comments": [
+      "timePeriod": "Today",
+      "crops": 12,
+      "livestock": 19
+    },
     {
-      "id": 1,
-      "body": "some comment",
-      "postId": 1
+      "timePeriod": "Last 7 Days",
+      "crops": 50,
+      "livestock": 60
+    },
+    {
+      "timePeriod": "Last 1 Month",
+      "crops": 150,
+      "livestock": 180
+    },
+    {
+      "timePeriod": "Last 3 Months",
+      "crops": 450,
+      "livestock": 540
+    },
+    {
+      "timePeriod": "Last 1 Year",
+      "crops": 1800,
+      "livestock": 2160
     }
-  ],
-  "profile": {
-    "name": "typicode"
-  }
+  ]
 }
