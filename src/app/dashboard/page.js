@@ -19,7 +19,7 @@ export default function Dashboard() {
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Navbar />
       <div className="w-full px-4 lg:pl-80">
-        <div className="h-full">
+      <div className="h-full">
           <div className="flex items-center w-full h-16 topBar">
             <h1 className="font-bold uppercase">Welcome Back, John</h1>
           </div>

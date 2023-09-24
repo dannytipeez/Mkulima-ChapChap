@@ -1,4 +1,4 @@
-"use client";4
+"use client"; 4
 // components/NumberedListTable.js
 
 const NumberedListTable = ({ service, provider, date }) => {
@@ -14,19 +14,19 @@ const NumberedListTable = ({ service, provider, date }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr className="hover:bg-green-200 transition duration-150">
                         <td className="px-2 py-4 sm:px-4 md:px-8">1</td>
                         <td className="px-2 py-4 sm:px-4 md:px-8">{service}</td>
                         <td className="px-2 py-4 sm:px-4 md:px-8">{provider}</td>
                         <td className="px-2 py-4 sm:px-4 md:px-8">{date}</td>
                     </tr>
-                    <tr>
+                    <tr className="hover:bg-green-200 transition duration-150">
                         <td className="px-2 py-4 sm:px-4 md:px-8">2</td>
                         <td className="px-2 py-4 sm:px-4 md:px-8">{service}</td>
                         <td className="px-2 py-4 sm:px-4 md:px-8">{provider}</td>
                         <td className="px-2 py-4 sm:px-4 md:px-8">{date}</td>
                     </tr>
-                    <tr>
+                    <tr className="hover:bg-green-200 transition duration-150">
                         <td className="px-2 py-4 sm:px-4 md:px-8">3</td>
                         <td className="px-2 py-4 sm:px-4 md:px-8">{service}</td>
                         <td className="px-2 py-4 sm:px-4 md:px-8">{provider}</td>
@@ -39,3 +39,4 @@ const NumberedListTable = ({ service, provider, date }) => {
 };
 
 export default NumberedListTable;
+
