@@ -35,14 +35,13 @@ export default function Dashboard() {
                 </div>
               </div>
             </section>
-            <section className="grid grid-cols-1 lg:grid-cols-2 bottomSection">
+            <section className="grid grid-cols-1 md:grid-cols-2 bottomSection">
               <div className="w-full p-4 chartDiv">
                 <h1 className="font-medium uppercase">Produce over time</h1>
 
-                <div className="my-4">
                   {/* Replace with your chart component */}
                   <MyChart />
-                </div>
+
               </div>
               <div className="w-full p-4 detailsContainer">
                 <div className="services">
@@ -51,9 +50,9 @@ export default function Dashboard() {
                     <NumberedListTable service="Ploughing" provider="Makiss Ltd" date="18-12-2023" />
                   </div>
                 </div>
-                <div className="mt-4 farmActivities">
+                <div className="w-full p-4 farmActivities">
                   <h1 className="font-medium uppercase">Upcoming Farm Activities</h1>
-                  <div>
+                  <div className="mt-4">
                     <ActivityTable activity="Weeding" date="12-05-2023" />
                   </div>
                 </div>

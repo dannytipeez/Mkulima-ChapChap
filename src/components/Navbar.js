@@ -16,11 +16,9 @@ import {
 import { CgProfile } from "react-icons/cg";
 import { FaRegComments } from "react-icons/fa";
 import { BiMessageSquareDots, BiCalendarEdit } from "react-icons/bi";
-import { useRouter } from "next/navigation";
 
 
 function Sidebar() {
-    const router = useRouter();
 
     return (
         <div>
