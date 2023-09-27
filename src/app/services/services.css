@@ -1,0 +1,14 @@
+.mainContainerServices {
+    /* Set a default width for screens wider than 500px */
+    width: 60%;
+}
+
+@media (max-width: 499px) {
+    /* Override the width for screens less than 500px */
+    .mainContainerServices {
+        width: 400px;
+    }
+	.exTable {
+		width: 400px;
+	}
+}
