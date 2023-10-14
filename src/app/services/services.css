@@ -6,9 +6,9 @@
 @media (max-width: 499px) {
     /* Override the width for screens less than 500px */
     .mainContainerServices {
-        width: 400px;
+        width: 200px;
     }
 	.exTable {
-		width: 400px;
+		width: 200px;
 	}
 }

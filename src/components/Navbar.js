@@ -23,7 +23,7 @@ function Sidebar() {
     return (
         <div>
             <Disclosure as="nav">
-                <Disclosure.Button className="absolute inline-flex items-center justify-center p-2 text-green-500 rounded-md top-4 right-4 peer hover:bg-green-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white group">
+                <Disclosure.Button   className="absolute inline-flex items-center justify-center p-2 text-green-500 rounded-md top-4 left-4 peer hover:bg-green-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white group">
                     <GiHamburgerMenu className="block w-6 h-6 lg:hidden" aria-hidden="true" />
                 </Disclosure.Button>
                 <div className="fixed top-0 z-20 h-screen p-6 duration-200 ease-out delay-150 bg-white -left-96 lg:left-0 lg:w-72 peer-focus:left-0 peer:transition md:w-64">

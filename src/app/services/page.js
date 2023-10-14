@@ -11,7 +11,7 @@ const Services = () => {
     return (
         <div className='flex w-full min-h-screen bg-gray-100'>
             <div className="flex"><Navbar /></div>
-            <div className="min-h-screen pl-8 lg:pl-80">
+            <div className="min-h-screen py-12 pl-8 lg:pl-80">
                 <div className="">
                     <div className="flex items-center h-16 topBar">
                         <h1 className="font-bold uppercase">Services</h1>
@@ -55,7 +55,7 @@ const Services = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4 bottomContainer">
+                        <div className="mt-4 overflow-x-auto bottomContainer">
                             <div className="servicesAvailable">
                                 <h1 className="font-medium uppercase">Services Available</h1>
                                 <div className="tableDiv">
