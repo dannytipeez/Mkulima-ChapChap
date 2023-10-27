@@ -47,14 +47,12 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     county = models.CharField(max_length=100, null=True, blank=True)
     area = models.CharField(max_length=100, blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
-
     created_date = models.DateTimeField(default=timezone.now)
     modified_date = models.DateTimeField(default=timezone.now)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
-
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "role", "phone"]
 
@@ -62,3 +60,18 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class FarmerProfile(models.Model):
+    user = models.OneToOneField(UserAccount, on_delete=models.CASCADE)
+    farm_location = models.CharField(max_length=100)
+    farm_size = models.DecimalField(max_digits=10, decimal_places=2)
+
+class AgriculturalExpertProfile(models.Model):
+    user = models.OneToOneField(UserAccount, on_delete=models.CASCADE)
+    organization = models.CharField(max_length=100)
+    specialty = models.CharField(max_length=100)
+
+class ServiceProviderProfile(models.Model):
+    user = models.OneToOneField(UserAccount, on_delete=models.CASCADE)
+    store_location = models.CharField(max_length=100)

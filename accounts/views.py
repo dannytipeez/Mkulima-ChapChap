@@ -8,8 +8,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.debug import sensitive_post_parameters
 from django.utils.encoding import force_str
-
 from accounts.models import UserAccount
+from rest_framework import generics
+from .serializers import ActiveUserSerializer
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CustomActivationView(View):
@@ -26,3 +27,12 @@ class CustomActivationView(View):
             return render(request, 'accounts/activation_success.html')  # Render the activation success template
         else:
             return HttpResponse("Activation link is invalid or has expired.")
+
+class UserListView(generics.ListAPIView):
+    queryset = UserAccount.objects.all()
+    serializer_class = ActiveUserSerializer
+
+
+class ActiveUserListView(generics.ListAPIView):
+    queryset = UserAccount.objects.filter(is_active=True)
+    serializer_class = ActiveUserSerializer
