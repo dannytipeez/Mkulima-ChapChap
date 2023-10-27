@@ -29,10 +29,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "djoser",
     "accounts",
+    "rest_framework.authtoken",
+    "corsheaders",
 ]
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -93,6 +96,12 @@ mkulimachapchap@gmail.com
 fqcnpdduauyxqaou
 smtp.gmail.com
 django.core.mail.backends.smtp.EmailBackend
+
+ozuo ytua ojrj zdle
+
+
+vyglnpopqrqruxnu
+
 """
 
 # email
@@ -153,6 +162,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.UserAccount"
 
 REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        'rest_framework.permissions.AllowAny',
+    ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -162,8 +174,8 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("JWT",),
 }
 
-DOMAIN = ('localhost:8000')
-SITE_NAME = ('MkulimaChapChap')
+DOMAIN = "localhost:8000"
+SITE_NAME = "MkulimaChapChap"
 
 
 DJOSER = {
@@ -184,6 +196,16 @@ DJOSER = {
     "SERIALIZERS": {
         "user_create": "accounts.serializers.UserCreateSerializer",
         "user": "accounts.serializers.UserCreateSerializer",
+        "current_user": "accounts.serializers.UserCreateSerializer",
         "user_delete": "djoser.serializers.UserDeleteSerializer",
     },
 }
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Replace with your Next.js development server URL
+    # Add other allowed origins for production here
+]
+
+# Allow cookies to be included in the requests (if needed)
+CORS_ALLOW_CREDENTIALS = True
