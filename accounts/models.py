@@ -7,6 +7,7 @@ from django.utils import timezone
 
 
 from .managers import CustomUserManager
+from farm.models import Farm
 
 
 # user model
@@ -44,8 +45,6 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     role = models.PositiveSmallIntegerField(
         choices=ROLE_CHOICES, blank=False, null=False, default=2
     )
-    county = models.CharField(max_length=100, null=True, blank=True)
-    area = models.CharField(max_length=100, blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     created_date = models.DateTimeField(default=timezone.now)
     modified_date = models.DateTimeField(default=timezone.now)
@@ -64,14 +63,17 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
 
 class FarmerProfile(models.Model):
     user = models.OneToOneField(UserAccount, on_delete=models.CASCADE)
-    farm_location = models.CharField(max_length=100)
-    farm_size = models.DecimalField(max_digits=10, decimal_places=2)
+    farm = models.ForeignKey(Farm, blank=True, null=True, on_delete=models.CASCADE)
+    contact_info = models.TextField(null=True, blank=True)  # Contact information of the expert
+
 
 class AgriculturalExpertProfile(models.Model):
     user = models.OneToOneField(UserAccount, on_delete=models.CASCADE)
-    organization = models.CharField(max_length=100)
-    specialty = models.CharField(max_length=100)
+    organization = models.CharField(max_length=100, null=True, blank=True)
+    contact_info = models.TextField(null=True, blank=True)  # Contact information of the expert
+    expertise = models.TextField(null=True, blank=True)
 
 class ServiceProviderProfile(models.Model):
     user = models.OneToOneField(UserAccount, on_delete=models.CASCADE)
-    store_location = models.CharField(max_length=100)
+    contact_info = models.TextField(null=True, blank=True)  # Contact information of the expert
+    store_location = models.CharField(max_length=100, null=True, blank=True)
