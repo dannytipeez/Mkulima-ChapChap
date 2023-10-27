@@ -4,7 +4,7 @@ from accounts.views import CustomActivationView
 
 from django.contrib import admin
 
-import accounts
+import accounts, farm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -17,6 +17,7 @@ urlpatterns = [
         name="activate",
     ),
     path("users/", include("accounts.urls"), name="users"),
+    path("farm/", include("farm.urls"), name="farm_resources"),
 ]
 
 # urlpatterns += [re_path(r"^.*", TemplateView.as_view(template_name="index.html"))]
