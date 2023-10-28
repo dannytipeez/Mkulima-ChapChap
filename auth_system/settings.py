@@ -32,11 +32,12 @@ INSTALLED_APPS = [
     "farm",
     "rest_framework.authtoken",
     "corsheaders",
+    "django_filters",
 ]
 
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -164,7 +165,7 @@ AUTH_USER_MODEL = "accounts.UserAccount"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
-        'rest_framework.permissions.AllowAny',
+        "rest_framework.permissions.AllowAny",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
