@@ -18,23 +18,25 @@ class FarmActivityAdmin(admin.ModelAdmin):
 # Register the Livestock model
 @admin.register(Livestock)
 class LivestockAdmin(admin.ModelAdmin):
-    list_display = ('animal_type', 'farm', 'frequency', 'produce')
-    list_filter = ('farm', 'frequency')
-    search_fields = ('animal_type', 'farm__name')
+    list_display = ('animal_type', 'number', 'frequency',)
+    list_filter = ('frequency', 'number',)
+    search_fields = ('animal_type',)
 
 # Register the Crop model
 @admin.register(Crop)
 class CropAdmin(admin.ModelAdmin):
-    list_display = ('crop_type', 'farm', 'frequency', 'produce')
-    list_filter = ('farm', 'frequency')
-    search_fields = ('crop_type', 'farm__name')
+    list_display = ('crop_type', 'number', 'frequency',)
+    list_filter = ('frequency', 'number',)
+    search_fields = ('crop_type',)
 
-# Register the Produce model
 @admin.register(Produce)
 class ProduceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'quantity', 'date', 'unit_price')
+    list_display = ('name', 'quantity', 'date', 'unit_price', 'producer')
     list_filter = ('date',)
-    search_fields = ('name', 'date')
+    search_fields = ('name', 'date', 'quantity', 'unit_price', 'producer__name')  # Include additional fields in the search
+
+    # Customize the ordering of the list
+    ordering = ('-date',)  # This will order the list by date in descending order
 
 # Register the Service model
 @admin.register(Service)

@@ -1,5 +1,8 @@
 from django.db import models
 import accounts
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
 
 # Model for Farm
 class Farm(models.Model):
@@ -23,7 +26,7 @@ class FarmActivity(models.Model):
     )
 
     farmer = models.ForeignKey(
-        'accounts.UserAccount', on_delete=models.CASCADE
+        "accounts.UserAccount", on_delete=models.CASCADE
     )  # The farmer planning the activity
     activity_type = models.CharField(
         max_length=20, choices=ACTIVITY_CHOICES
@@ -42,9 +45,8 @@ class FarmActivity(models.Model):
 # Model for Livestock
 class Livestock(models.Model):
     animal_type = models.CharField(max_length=100)
-    produce = models.ForeignKey("Produce", on_delete=models.CASCADE)
+    number = models.CharField(max_length=100, null=True, blank=True)
     frequency = models.CharField(max_length=100)
-    farm = models.ForeignKey(Farm, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.animal_type
@@ -53,9 +55,8 @@ class Livestock(models.Model):
 # Model for Crop
 class Crop(models.Model):
     crop_type = models.CharField(max_length=100)
-    produce = models.ForeignKey("Produce", on_delete=models.CASCADE)
-    frequency = models.CharField(max_length=100)
-    farm = models.ForeignKey(Farm, on_delete=models.CASCADE)
+    number = models.CharField(max_length=100, null=True, blank=True)
+    frequency = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.crop_type
@@ -68,6 +69,11 @@ class Produce(models.Model):
     date = models.DateField()
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to="produce_images/", blank=True, null=True)
+
+    # Generic foreign key to link to either Livestock or Crop
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=False)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    producer = GenericForeignKey("content_type", "object_id")
 
     def __str__(self):
         return self.name
@@ -84,7 +90,7 @@ class Service(models.Model):
 
     name = models.CharField(max_length=255)
     farmer = models.ForeignKey(
-        'accounts.UserAccount', on_delete=models.CASCADE
+        "accounts.UserAccount", on_delete=models.CASCADE
     )  # The farmer booking the service
     cost = models.DecimalField(max_digits=10, decimal_places=2)  # Cost of the service
     date = models.DateField()  # Date when the service will be done
@@ -106,7 +112,7 @@ class Question(models.Model):
 
     question_text = models.TextField()
     farmer = models.ForeignKey(
-        'accounts.UserAccount', on_delete=models.CASCADE
+        "accounts.UserAccount", on_delete=models.CASCADE
     )  # The farmer who asked the question
     date_time = models.DateTimeField(auto_now_add=True)  # Date and time of the question
     status = models.CharField(
@@ -123,7 +129,7 @@ class Question(models.Model):
 # Model for Answer
 class Answer(models.Model):
     expert = models.ForeignKey(
-        'accounts.UserAccount', on_delete=models.CASCADE
+        "accounts.UserAccount", on_delete=models.CASCADE
     )  # The expert who answered the question
     answer_text = models.TextField()
     date_time = models.DateTimeField(auto_now_add=True)  # Date and time of the answer

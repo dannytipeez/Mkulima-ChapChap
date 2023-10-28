@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .filters import ServiceFilter  # Import the filter
+from .filters import ServiceFilter, ProduceFilter  # Import the filter
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 from rest_framework import generics, status
@@ -31,6 +32,31 @@ from .serializers import (
 )
 
 
+# crud views for livestock and crops
+class LivestockListCreateView(generics.ListCreateAPIView):
+    queryset = Livestock.objects.all()
+    serializer_class = LivestockSerializer
+    # permission_classes = [IsAuthenticated]
+
+
+class LivestockRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Livestock.objects.all()
+    serializer_class = LivestockSerializer
+    # permission_classes = [IsAuthenticated]
+
+
+class CropListCreateView(generics.ListCreateAPIView):
+    queryset = Crop.objects.all()
+    serializer_class = CropSerializer
+    # permission_classes = [IsAuthenticated]
+
+
+class CropRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Crop.objects.all()
+    serializer_class = CropSerializer
+    # permission_classes = [IsAuthenticated]
+
+
 # View for listing all farms and creating a new farm
 class FarmListCreateView(generics.ListCreateAPIView):
     queryset = Farm.objects.all()
@@ -49,6 +75,9 @@ class FarmRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class ServiceListCreateView(generics.ListCreateAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["status", "date", "cost"]
+    filterset_class = ServiceFilter
     # permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
@@ -64,48 +93,19 @@ class ServiceRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         # Custom logic for updating a service booking
         instance = serializer.save()
-        if instance.status == 'Completed':
+        if instance.status == "Completed":
             # Implement your logic for handling completed services here
             pass
 
     def perform_destroy(self, instance):
         # Custom logic for canceling a service booking
-        if instance.status == 'Pending':
+        if instance.status == "Pending":
             # Implement your logic for canceling a pending service here
-            instance.status = 'Cancelled'
+            instance.status = "Cancelled"
             instance.save()
         else:
             # Handle other cases as needed
             pass
-
-
-# View for asking a question
-class QuestionCreateView(generics.CreateAPIView):
-    serializer_class = QuestionSerializer
-    # permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        # Set the farmer asking the question to the current user
-        serializer.save()  # farmer=self.request.user
-
-
-class QuestionListView(generics.ListAPIView):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-
-
-# View for viewing and adding produce from livestock
-class LivestockProduceView(generics.ListCreateAPIView):
-    queryset = Livestock.objects.all()
-    serializer_class = LivestockSerializer
-    # permission_classes = [IsAuthenticated]
-
-
-# View for viewing and adding produce from crop
-class CropProduceView(generics.ListCreateAPIView):
-    queryset = Crop.objects.all()
-    serializer_class = CropSerializer
-    # permission_classes = [IsAuthenticated]
 
 
 # View for listing all farm activities and creating a new farm activity
@@ -172,8 +172,36 @@ class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
         )
 
 
+# View for asking a question
+class QuestionCreateView(generics.CreateAPIView):
+    serializer_class = QuestionSerializer
+    # permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Set the farmer asking the question to the current user
+        serializer.save()  # farmer=self.request.user
+
+
+class QuestionListView(generics.ListAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+
 # View for viewing and adding answers
 class AnswerView(generics.ListCreateAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
     # permission_classes = [IsAuthenticated]
+
+
+class ProduceListCreateView(generics.ListCreateAPIView):
+    queryset = Produce.objects.all()
+    serializer_class = ProduceSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["producer_type", "producer_id", "date"]
+    filterset_class = ProduceFilter
+
+
+class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Produce.objects.all()
+    serializer_class = ProduceSerializer

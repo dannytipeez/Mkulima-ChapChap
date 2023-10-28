@@ -1,8 +1,6 @@
 from django.urls import path
 from .views import (
     QuestionCreateView,
-    LivestockProduceView,
-    CropProduceView,
     AnswerView,
     QuestionListView,
     FarmListCreateView,
@@ -10,7 +8,13 @@ from .views import (
     ServiceListCreateView,
     ServiceRetrieveUpdateDeleteView,
     FarmActivityListCreateView,
-    FarmActivityRetrieveUpdateDestroyView
+    FarmActivityRetrieveUpdateDestroyView,
+    LivestockListCreateView,
+    LivestockRetrieveUpdateDestroyView,
+    CropListCreateView,
+    CropRetrieveUpdateDestroyView,
+    ProduceListCreateView,
+    ProduceRetrieveUpdateDestroyView,
 )
 
 urlpatterns = [
@@ -26,13 +30,16 @@ urlpatterns = [
 
 
     # URL for asking a question
-    path('questions/ask/', QuestionCreateView.as_view(), name='ask-question'),
-    path('questions/', QuestionListView.as_view(), name='questions'),
-    path('questions/answers/', AnswerView.as_view(), name='answers'),
+    path('v1/questions/ask/', QuestionCreateView.as_view(), name='ask-question'),
+    path('v1/questions/', QuestionListView.as_view(), name='questions'),
+    path('v1/questions/answers/', AnswerView.as_view(), name='answers'),
 
-    # URL for viewing and adding produce from livestock
-    path('livestock-produce/', LivestockProduceView.as_view(), name='livestock-produce'),
+    path('v1/livestock/', LivestockListCreateView.as_view(), name='livestock-list'),
+    path('v1/livestock/<int:pk>/', LivestockRetrieveUpdateDestroyView.as_view(), name='livestock-detail'),
 
-    # URL for viewing and adding produce from crop
-    path('crop-produce/', CropProduceView.as_view(), name='crop-produce'),
+    path('v1/crop/', CropListCreateView.as_view(), name='crop-list'),
+    path('v1/crop/<int:pk>/', CropRetrieveUpdateDestroyView.as_view(), name='crop-detail'),
+
+    path('v1/produce/', ProduceListCreateView.as_view(), name='produce-list'),
+    path('v1/produce/<int:pk>/', ProduceRetrieveUpdateDestroyView.as_view(), name='produce-detail'),
 ]
