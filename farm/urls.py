@@ -15,6 +15,15 @@ from .views import (
     CropRetrieveUpdateDestroyView,
     ProduceListCreateView,
     ProduceRetrieveUpdateDestroyView,
+    ToolListCreateView,
+    StoreListCreateView,
+    StoreRetrieveUpdateDestroyView,
+    ToolMaintenanceView,
+    ToolRetrieveUpdateDestroyView,
+    StorageListCreateView,
+    StorageRetrieveUpdateDestroyView,
+    CheckStorageCapacityView,
+    CheckStoreCapacityView,
 )
 
 urlpatterns = [
@@ -42,4 +51,18 @@ urlpatterns = [
 
     path('v1/produce/', ProduceListCreateView.as_view(), name='produce-list'),
     path('v1/produce/<int:pk>/', ProduceRetrieveUpdateDestroyView.as_view(), name='produce-detail'),
+
+    path('stores/', StoreListCreateView.as_view(), name='store-list-create'),
+    path('stores/<int:pk>/', StoreRetrieveUpdateDestroyView.as_view(), name='store-retrieve-update-destroy'),
+    path('stores/check-capacity/', CheckStoreCapacityView.as_view(), name='check-store-capacity'),
+
+
+    path('storages/', StorageListCreateView.as_view(), name='storage-list-create'),
+    path('storages/<int:pk>/', StorageRetrieveUpdateDestroyView.as_view(), name='storage-retrieve-update-destroy'),
+    path('storages/check-capacity/', CheckStorageCapacityView.as_view(), name='check-storage-capacity'),
+
+
+    path('tools/', ToolListCreateView.as_view(), name='tool-list-create'),
+    path('tools/<int:pk>/', ToolRetrieveUpdateDestroyView.as_view(), name='tool-retrieve-update-destroy'),
+    path('tools/<int:pk>/maintenance/', ToolMaintenanceView.as_view(), name='tool-maintenance'),
 ]

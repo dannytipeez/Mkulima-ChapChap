@@ -8,6 +8,9 @@ from .models import (
     Service,
     Question,
     Answer,
+    Storage,
+    Store,
+    Tool,
 )
 
 class FarmSerializer(serializers.ModelSerializer):
@@ -50,3 +53,17 @@ class ProduceSerializer(serializers.ModelSerializer):
         model = Produce
         fields = '__all__'
 
+class StoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Store
+        fields = '__all__'
+
+class StorageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Storage
+        fields = '__all__'
+
+class ToolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tool
+        fields = '__all__'

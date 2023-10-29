@@ -19,6 +19,9 @@ from .models import (
     Service,
     Question,
     Answer,
+    Storage,
+    Store,
+    Tool,
 )
 from .serializers import (
     FarmSerializer,
@@ -29,6 +32,9 @@ from .serializers import (
     ServiceSerializer,
     QuestionSerializer,
     AnswerSerializer,
+    StorageSerializer,
+    StoreSerializer,
+    ToolSerializer,
 )
 
 
@@ -205,3 +211,128 @@ class ProduceListCreateView(generics.ListCreateAPIView):
 class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Produce.objects.all()
     serializer_class = ProduceSerializer
+
+
+# tools and maintenance views
+class ToolListCreateView(generics.ListCreateAPIView):
+    queryset = Tool.objects.all()
+    serializer_class = ToolSerializer
+
+
+class ToolRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Tool.objects.all()
+    serializer_class = ToolSerializer
+
+
+class ToolMaintenanceView(generics.UpdateAPIView):
+    queryset = Tool.objects.all()
+    serializer_class = ToolSerializer
+
+    def update(self, request, *args, **kwargs):
+        # Get the tool's primary key from the URL
+        tool_pk = kwargs.get("pk")
+        name = request.data.get("name")  # Name filter
+        condition = request.data.get("condition")  # Condition filter
+
+        # If tool_pk is provided, update tool by PK
+        if tool_pk:
+            try:
+                instance = self.get_queryset().get(pk=tool_pk)
+            except Tool.DoesNotExist:
+                return Response(
+                    {"message": "Tool not found"}, status=status.HTTP_404_NOT_FOUND
+                )
+            instance.last_maintenance_date = request.data.get("last_maintenance_date")
+            instance.save()
+            return Response(
+                {"message": "Maintenance updated successfully"},
+                status=status.HTTP_200_OK,
+            )
+
+        # If no tool_pk is provided, apply filtering (name, condition)
+        queryset = self.get_queryset()
+        if name:
+            queryset = queryset.filter(name=name)
+        if condition:
+            queryset = queryset.filter(condition=condition)
+
+        # Apply additional filters as needed
+        # For example: queryset = queryset.filter(some_other_field=some_value)
+
+        # Perform the update on the filtered queryset
+        queryset.update(last_maintenance_date=request.data.get("last_maintenance_date"))
+
+        return Response(
+            {"message": "Maintenance updated for filtered tools"},
+            status=status.HTTP_200_OK,
+        )
+
+
+# store views
+class CheckStoreCapacityView(generics.ListCreateAPIView):
+    store_queryset = Store.objects.all()
+    store = store_queryset[0]
+    available_space = store.capacity - store.used_capacity
+
+    def get(
+        self,
+        request,
+        available_space=available_space,
+        used_capacity=store.used_capacity,
+        *args,
+        **kwargs,
+    ):
+        if available_space <= 0:
+            return Response(
+                {"message": "Store is full"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {
+                "message": f"Store has ({available_space}) available space",
+                "available_space": available_space,
+                "used_space": used_capacity,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class StoreListCreateView(generics.ListCreateAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+
+
+class StoreRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+
+
+# storage views
+class StorageListCreateView(generics.ListCreateAPIView):
+    queryset = Storage.objects.all()
+    serializer_class = StorageSerializer
+
+
+class StorageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Storage.objects.all()
+    serializer_class = StorageSerializer
+
+
+class CheckStorageCapacityView(generics.ListCreateAPIView):
+    queryset = Storage.objects.all()
+    serializer_class = ToolSerializer
+    storage = queryset[0]
+
+    def get(self, request, storage=storage, *args, **kwargs):
+        available_space = storage.capacity - storage.used_capacity
+        if available_space <= 0:
+            return Response(
+                {"message": "Storage is full"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {
+                "message": f"Storage has ({available_space}) available space",
+                "available_space": available_space,
+                "used_space": storage.used_capacity,
+            },
+            status=status.HTTP_200_OK,
+        )

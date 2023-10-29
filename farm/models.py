@@ -2,6 +2,7 @@ from django.db import models
 import accounts
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from datetime import datetime, timedelta
 
 
 # Model for Farm
@@ -42,10 +43,11 @@ class FarmActivity(models.Model):
         return f"{self.activity_type} by {self.farmer.username} on {self.date} at {self.time}"
 
 
-# Model for Livestock
+# Model for LivestockFF
 class Livestock(models.Model):
     animal_type = models.CharField(max_length=100)
     number = models.CharField(max_length=100, null=True, blank=True)
+    image = models.ImageField(upload_to="livestock_images/", blank=True, null=True)
     frequency = models.CharField(max_length=100)
 
     def __str__(self):
@@ -71,7 +73,9 @@ class Produce(models.Model):
     image = models.ImageField(upload_to="produce_images/", blank=True, null=True)
 
     # Generic foreign key to link to either Livestock or Crop
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=False)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, null=True, blank=False
+    )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     producer = GenericForeignKey("content_type", "object_id")
 
@@ -136,3 +140,59 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"Answer by {self.expert.username}"
+
+
+class Store(models.Model):
+    farm = models.ForeignKey(Farm, on_delete=models.CASCADE)
+    capacity = models.PositiveIntegerField()
+    used_capacity = models.PositiveIntegerField()
+
+    def update_capacity(self):
+        # Calculate the capacity based on the number of tools
+        tool_count_good = Tool.objects.filter(condition="Good").count()
+        tool_count_fair = Tool.objects.filter(
+            condition="Needs Maintenance"
+        ).count()  # Adjust the condition as needed
+        self.used_capacity = tool_count_fair + tool_count_good
+        self.save()
+
+    def __str__(self):
+        return self.farm.name
+
+
+class Storage(models.Model):
+    farm = models.ForeignKey(Farm, on_delete=models.CASCADE)
+    capacity = models.PositiveIntegerField()
+    used_capacity = models.PositiveIntegerField()
+
+
+class Tool(models.Model):
+    CONDITION_CHOICES = (
+        ("Good", "Good"),
+        ("Needs Maintenance", "Needs Maintenance"),
+        ("Under Maintenance", "Under Maintenance"),
+    )
+
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    condition = models.CharField(
+        max_length=20, choices=CONDITION_CHOICES, default="Good"
+    )
+    image = models.ImageField(upload_to="tools_images/", blank=True, null=True)
+    last_maintenance_date = models.DateField(null=True, blank=False)
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        # Calculate the number of days since the last maintenance
+        if self.last_maintenance_date:
+            days_since_maintenance = (
+                datetime.now().date() - self.last_maintenance_date
+            ).days
+            if days_since_maintenance <= 14:
+                self.condition = "Good"
+            else:
+                self.condition = "Needs Maintenance"
+        super(Tool, self).save(*args, **kwargs)

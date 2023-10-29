@@ -17,6 +17,7 @@ class ProduceFilter(django_filters.FilterSet):
     class Meta:
         model = Produce
         fields = {
+            "name": ['exact'],
             "content_type": ["exact"],
             "object_id": ["exact"],
             "date": ["exact", "gte", "lte"],

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Farm, FarmActivity, Livestock, Crop, Produce, Service, Question, Answer
+from .models import Farm, FarmActivity, Livestock, Crop, Produce, Service, Question, Answer, Store, Storage, Tool
 
 # Register the Farm model
 @admin.register(Farm)
@@ -58,3 +58,21 @@ class AnswerAdmin(admin.ModelAdmin):
     list_display = ('expert', 'date_time', 'answer_text')
     list_filter = ('date_time',)
     search_fields = ('expert__username', 'answer_text')
+
+@admin.register(Tool)
+class ToolAdmin(admin.ModelAdmin):
+    list_display = ('name', 'condition', 'last_maintenance_date')
+    list_filter = ('condition',)
+    search_fields = ('name', 'condition',)
+
+@admin.register(Store)
+class StoreAdmin(admin.ModelAdmin):
+    list_display = ('farm', 'capacity', 'used_capacity')
+    list_filter = ('farm', 'used_capacity')
+    search_fields = ('farm__name',)
+
+@admin.register(Storage)
+class StorageAdmin(admin.ModelAdmin):
+    list_display = ('farm', 'capacity', 'used_capacity')
+    list_filter = ('farm', 'used_capacity')
+    search_fields = ('farm__name',)
