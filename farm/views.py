@@ -204,13 +204,26 @@ class ProduceListCreateView(generics.ListCreateAPIView):
     queryset = Produce.objects.all()
     serializer_class = ProduceSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["producer_type", "producer_id", "date"]
+    filterset_fields = [
+        "producer_type",
+        "producer_id",
+        "date",
+        "last_days",
+    ]
     filterset_class = ProduceFilter
-
 
 class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Produce.objects.all()
     serializer_class = ProduceSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        "producer_type",
+        "producer_id",
+        "date",
+        "last_days",
+    ]
+    filterset_class = ProduceFilter
+
 
 
 # tools and maintenance views
