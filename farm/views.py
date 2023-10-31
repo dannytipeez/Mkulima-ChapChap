@@ -2,7 +2,11 @@ from django.shortcuts import render
 from .filters import ServiceFilter, ProduceFilter  # Import the filter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.contenttypes.models import ContentType
-
+import openai
+from django.http import JsonResponse
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -43,39 +47,39 @@ from .serializers import (
 class LivestockListCreateView(generics.ListCreateAPIView):
     queryset = Livestock.objects.all()
     serializer_class = LivestockSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 class LivestockRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Livestock.objects.all()
     serializer_class = LivestockSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 class CropListCreateView(generics.ListCreateAPIView):
     queryset = Crop.objects.all()
     serializer_class = CropSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 class CropRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Crop.objects.all()
     serializer_class = CropSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 # View for listing all farms and creating a new farm
 class FarmListCreateView(generics.ListCreateAPIView):
     queryset = Farm.objects.all()
     serializer_class = FarmSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 # View for retrieving, updating, and deleting a specific farm
 class FarmRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Farm.objects.all()
     serializer_class = FarmSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 # View for listing all available services and creating a new service booking
@@ -85,7 +89,7 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["status", "date", "cost"]
     filterset_class = ServiceFilter
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         # Set the farmer booking the service to the current user
@@ -96,6 +100,7 @@ class ServiceRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     filter_class = ServiceFilter  # Specify the filter class
+    permission_classes = [IsAuthenticated]
 
     def perform_update(self, serializer):
         # Custom logic for updating a service booking
@@ -119,7 +124,7 @@ class ServiceRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class FarmActivityListCreateView(generics.ListCreateAPIView):
     queryset = FarmActivity.objects.all()
     serializer_class = FarmActivitySerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         # Check if a similar activity already exists
@@ -144,7 +149,7 @@ class FarmActivityListCreateView(generics.ListCreateAPIView):
 class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FarmActivity.objects.all()
     serializer_class = FarmActivitySerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         # Check if a similar activity already exists
@@ -179,26 +184,6 @@ class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
         )
 
 
-# View for asking a question
-class QuestionCreateView(generics.CreateAPIView):
-    serializer_class = QuestionSerializer
-    # permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        # Set the farmer asking the question to the current user
-        serializer.save()  # farmer=self.request.user
-
-
-class QuestionListView(generics.ListAPIView):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-
-
-# View for viewing and adding answers
-class AnswerView(generics.ListCreateAPIView):
-    queryset = Answer.objects.all()
-    serializer_class = AnswerSerializer
-    # permission_classes = [IsAuthenticated]
 
 
 class ProduceListCreateView(generics.ListCreateAPIView):
@@ -212,6 +197,7 @@ class ProduceListCreateView(generics.ListCreateAPIView):
         "last_days",
     ]
     filterset_class = ProduceFilter
+    permission_classes = [IsAuthenticated]
 
 class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Produce.objects.all()
@@ -224,9 +210,11 @@ class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         "last_days",
     ]
     filterset_class = ProduceFilter
+    permission_classes = [IsAuthenticated]
 
 class LivestockProduceListView(generics.ListAPIView):
     serializer_class = ProduceSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
         "producer_type",
@@ -247,6 +235,7 @@ class LivestockProduceListView(generics.ListAPIView):
 
 class CropProduceListView(generics.ListAPIView):
     serializer_class = ProduceSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Get the content type for the Crop model
@@ -261,16 +250,20 @@ class CropProduceListView(generics.ListAPIView):
 class ToolListCreateView(generics.ListCreateAPIView):
     queryset = Tool.objects.all()
     serializer_class = ToolSerializer
+    permission_classes = [IsAuthenticated]
+
 
 
 class ToolRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Tool.objects.all()
     serializer_class = ToolSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class ToolMaintenanceView(generics.UpdateAPIView):
     queryset = Tool.objects.all()
     serializer_class = ToolSerializer
+    permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         # Get the tool's primary key from the URL
@@ -317,6 +310,7 @@ class CheckStoreCapacityView(generics.ListCreateAPIView):
     store_queryset = Store.objects.all()
     store = store_queryset[0]
     available_space = store.capacity - store.used_capacity
+    permission_classes = [IsAuthenticated]
 
     def get(
         self,
@@ -343,28 +337,33 @@ class CheckStoreCapacityView(generics.ListCreateAPIView):
 class StoreListCreateView(generics.ListCreateAPIView):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class StoreRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
+    permission_classes = [IsAuthenticated]
 
 
 # storage views
 class StorageListCreateView(generics.ListCreateAPIView):
     queryset = Storage.objects.all()
     serializer_class = StorageSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class StorageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Storage.objects.all()
     serializer_class = StorageSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class CheckStorageCapacityView(generics.ListCreateAPIView):
     queryset = Storage.objects.all()
     serializer_class = ToolSerializer
     storage = queryset[0]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, storage=storage, *args, **kwargs):
         available_space = storage.capacity - storage.used_capacity
@@ -380,3 +379,45 @@ class CheckStorageCapacityView(generics.ListCreateAPIView):
             },
             status=status.HTTP_200_OK,
         )
+
+# View for asking a question
+class QuestionCreateView(generics.CreateAPIView):
+    serializer_class = QuestionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Set the farmer asking the question to the current user
+        serializer.save()  # farmer=self.request.user
+
+
+class QuestionListView(generics.ListAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+
+# View for viewing and adding answers
+class AnswerView(generics.ListCreateAPIView):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+    # permission_classes = [IsAuthenticated]
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ChatGPTView(View):
+    def post(self, request):
+        question = request.POST.get('question')
+        # Define your OpenAI API key
+        api_key= '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'
+        #api_key = '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' freakoutbond
+
+        # Make a request to the GPT-3 model
+        openai.api_key = api_key
+        response = openai.Completion.create(
+            engine="text-davinci-002",
+            prompt=f"Ask GPT-3: {question}",
+            max_tokens=50  # Adjust the response length as needed
+        )
+
+        answer = response.choices[0].text
+
+        # Return the answer as JSON
+        return JsonResponse({'answer': answer})
