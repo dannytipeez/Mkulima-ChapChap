@@ -7,28 +7,56 @@ import LineChart from "@/components/MyChart";
 import Navbar from "@/components/Navbar";
 import NumberedListTable from "@/components/ServiceTable";
 import BarChart from "@/components/MyChart";
+import api from '../../utils/api';
 
 import MyChart from "@/components/MyChart";
 
 
 
 export default function Dashboard() {
+  //get current user details
+  const email = localStorage.getItem("email");
+  const username = localStorage.getItem("username");
+  const userDetails = { "email": email, "username": username }
+  // console.log(username);
+
+  //get cards details
+  //number of livestock
+  const fetchData = async (endpoint) => {
+    try {
+      const res = await api.get(endpoint);
+      //access data from response
+      const data = res.data;
+      console.log('data: ', data);
+      return data;
+    } catch (err) {
+      console.log('Error fetching data:', err)
+    }
+  };
+
+  //fetching livestock data
+  const livestockData = fetchData('farm/livestock/');
+  // total = livestockData.reduce((accumulator, currentValue) => accumulator + parseInt(currentValue.number, 10), 0);
+  //fetching crop data
+  const cropData = fetchData('farm/crop/');
+  const storeData = fetchData('farm/stores/');
+  const storageData = fetchData('farm/storages/');
 
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Navbar />
       <div className="w-full px-4 py-12 lg:pl-80">
-      <div className="h-full">
+        <div className="h-full">
           <div className="flex items-center w-full h-16 topBar">
-            <h1 className="font-bold uppercase">Welcome Back, John</h1>
+            <h1 className="font-bold uppercase">Welcome Back, {username}</h1>
           </div>
           <section className="grid grid-cols-1 gap-4 mainSection">
             <section className="topSection">
               <div className="flex flex-col">
                 <h3 className="font-medium uppercase">Overview</h3>
                 <div className="grid gap-4 md:grid-cols-4 sm:grid-cols-2 cardsContainer">
-                  <Card label="Number of cows" details="23" />
+                  <Card label="Number of Livestock" details='34' />
                   <Card label="Number of crops" details="2,334" />
                   <Card label="Store Capacity" details="10/100" />
                   <Card label="Storage Capacity" details="12/50" />
@@ -39,8 +67,8 @@ export default function Dashboard() {
               <div className="w-full p-4 chartDiv">
                 <h1 className="font-medium uppercase">Produce over time</h1>
 
-                  {/* Replace with your chart component */}
-                  <MyChart />
+                {/* Replace with your chart component */}
+                <MyChart />
 
               </div>
               <div className="w-full p-4 detailsContainer">
@@ -61,6 +89,6 @@ export default function Dashboard() {
           </section>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }
+

@@ -27,7 +27,6 @@ export default function Login() {
     const router = useRouter();
 
 
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -48,9 +47,9 @@ export default function Login() {
 
     return (
         <div>
-            {isAuthenticated ? (
-                router.push('/dashboard'),
-            ) : (
+            {/* {isAuthenticated ? ( */}
+                {/* router.push('/dashboard'), */}
+            {/* ) : ( */}
                 <div className='flex flex-col justify-center min-h-screen bg-gray-100'>
                     <div className='py-4 text-3xl font-medium text-center text-green-500'>Welcome Back to Mkulima Chapchap</div>
 
@@ -136,7 +135,7 @@ export default function Login() {
                         </a>
                     </div>
                 </div>
-            )}
+            {/* )} */}
         </div>
     );
 }

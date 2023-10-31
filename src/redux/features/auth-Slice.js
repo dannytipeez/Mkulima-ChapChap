@@ -1,4 +1,4 @@
-// authSlice.js
+// authSlice.jsdashboard
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -25,10 +25,17 @@ export const loadUser = createAsyncThunk('auth/loadUser', async (_, { getState, 
                 'Accept': 'application/json'
             }
         };
-        console.log("loading user...");
+        // console.log("loading user...");
         try {
-            const res = await axios.get(`http://localhost:8000/auth/users/me/`, config);
+            const res = await axios.get(`http://localhost:8000/api/v1/auth/users/me/`, config);
             console.log(res.data);
+		const {email, username, role} = res.data;
+		localStorage.setItem('username', username);
+        localStorage.setItem('role', role);
+        localStorage.setItem('email', email);
+
+            localStorage.setItem("user", res.data);
+            localStorage.setItem("pass", true);
             dispatch(userLoadedSuccess(res.data));
             return res.data;
         } catch (err) {
@@ -56,7 +63,7 @@ export const checkAuthenticated = createAsyncThunk(
 
             try {
                 const res = await axios.post(
-                    `http://localhost:8000/auth/jwt/verify/`,
+                    `http://localhost:8000/api/v1/auth/jwt/verify/`,
                     body,
                     config
                 );
@@ -89,12 +96,20 @@ export const loginUser = createAsyncThunk(
 
         try {
             const res = await axios.post(
-                `http://localhost:8000/auth/jwt/create/`,
+                `http://localhost:8000/api/v1/auth/jwt/create/`,
                 body,
                 config
             );
 
             dispatch(loginSuccess(res.data)); // Dispatch the login success action
+            //console.log("Printing results");
+            //console.log(res.data);
+            //console.log("results above");
+            const { access, refresh } = res.data;
+
+            // Save the tokens to localStorage
+            localStorage.setItem('access', access);
+            localStorage.setItem('refresh', refresh);
             // console.log("logged in successfully");
             // console.log(res.data);
             // dispatch(checkAuthenticated());
