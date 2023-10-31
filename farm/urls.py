@@ -24,6 +24,8 @@ from .views import (
     StorageRetrieveUpdateDestroyView,
     CheckStorageCapacityView,
     CheckStoreCapacityView,
+    LivestockProduceListView,
+    CropProduceListView,
 )
 
 urlpatterns = [
@@ -51,6 +53,10 @@ urlpatterns = [
 
     path('v1/produce/', ProduceListCreateView.as_view(), name='produce-list'),
     path('v1/produce/<int:pk>/', ProduceRetrieveUpdateDestroyView.as_view(), name='produce-detail'),
+    path('v1/produce/livestock/', LivestockProduceListView.as_view(), name='livestock-produce-list'),
+    path('v1/produce/crop/', CropProduceListView.as_view(), name='crop-produce-list'),
+
+
 
     path('stores/', StoreListCreateView.as_view(), name='store-list-create'),
     path('stores/<int:pk>/', StoreRetrieveUpdateDestroyView.as_view(), name='store-retrieve-update-destroy'),

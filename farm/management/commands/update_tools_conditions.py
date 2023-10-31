@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 class Command(BaseCommand):
     help = 'Update tool conditions'
+    """ for updating tool conditions (Good, Needs Maintenance and Under Maintenance) """
 
     def handle(self, *args, **options):
         # Get all tools

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .filters import ServiceFilter, ProduceFilter  # Import the filter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.contenttypes.models import ContentType
 
 # Create your views here.
 from rest_framework import generics, status
@@ -224,7 +225,37 @@ class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     ]
     filterset_class = ProduceFilter
 
+class LivestockProduceListView(generics.ListAPIView):
+    serializer_class = ProduceSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        "producer_type",
+        "producer_id",
+        "date",
+        "last_days",
+    ]
+    filterset_class = ProduceFilter
 
+    def get_queryset(self):
+        # Get the content type for the Livestock model
+        livestock_content_type = ContentType.objects.get_for_model(Livestock)
+
+        # Query for all produce linked to Livestock
+        queryset = Produce.objects.filter(content_type=livestock_content_type)
+
+        return queryset
+
+class CropProduceListView(generics.ListAPIView):
+    serializer_class = ProduceSerializer
+
+    def get_queryset(self):
+        # Get the content type for the Crop model
+        crop_content_type = ContentType.objects.get_for_model(Crop)
+
+        # Query for all produce linked to Crop
+        queryset = Produce.objects.filter(content_type=crop_content_type)
+
+        return queryset
 
 # tools and maintenance views
 class ToolListCreateView(generics.ListCreateAPIView):
