@@ -44,7 +44,7 @@ export default function Dashboard() {
     const storage = storeData[0] ? storeData[0] : null;
 
     //get produce of crops and livestock
-    
+
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
