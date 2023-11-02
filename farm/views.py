@@ -161,6 +161,7 @@ class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
             activity_type=serializer.validated_data["activity_type"],
             date=serializer.validated_data["date"],
             time=serializer.validated_data["time"],
+            status = serializer.validated_data["status"],
         ).exclude(
             pk=instance.pk
         )  # Exclude the current activity from the check

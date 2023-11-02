@@ -26,6 +26,13 @@ class FarmActivity(models.Model):
         # Add more activity types as needed
     )
 
+    STATUS_CHOICES = (
+        ("Pending", "Pending"),
+        ("In Progress", "In Progress"),
+        ("Completed", "Completed"),
+        ("Cancelled", "Cancelled"),
+    )
+
     farmer = models.ForeignKey(
         "accounts.UserAccount", on_delete=models.CASCADE
     )  # The farmer planning the activity
@@ -38,6 +45,9 @@ class FarmActivity(models.Model):
         models.TextField()
     )  # Description of resources required (e.g., 10 pangas)
     notes = models.TextField(blank=True, null=True)  # Additional notes or instructions
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="Pending"
+    )  # Status of the service
 
     def __str__(self):
         return f"{self.activity_type} by {self.farmer.username} on {self.date} at {self.time}"
