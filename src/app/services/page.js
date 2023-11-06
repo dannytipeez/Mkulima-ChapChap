@@ -3,100 +3,175 @@
 import Navbar from "@/components/Navbar";
 import "./services.css";
 import NumberedListTable from "@/components/ServiceTable";
+import { useState, useEffect } from "react";
+import api from '../../utils/api';
+import { toast } from "react-toastify"; // Import the toast library
+import "react-toastify/dist/ReactToastify.css";
 
 const Services = () => {
-    const service = "Ploughing"
-    const provider = "Winass Ltd"
-    const date = "18-06-2023"
+    const [service, setService] = useState('');
+    const [date, setDate] = useState('');
+    const [time, setTime] = useState('');
+    const [cost, setCost] = useState('');
+    const [name, setName] = useState('');
+
+
+    const handleServiceChange = (e) => {
+        setService(e.target.value);
+    };
+
+    const handleDateChange = (e) => {
+        setDate(e.target.value);
+    };
+
+    const handleTimeChange = (e) => {
+        setTime(e.target.value);
+    };
+
+    const handleCostChange = (e) => {
+        setCost(e.target.value);
+    };
+
+
+    const handleNameChange = (e) => {
+        setName(e.target.value);
+    };
+
+    const handleBookService = async () => {
+        // Prepare the data to be sent to the API
+        const data = {
+            "service_type": service,
+            "name": name,
+            "cost": cost,
+            "date": date,
+            "time": time,
+        };
+
+        try {
+            // Make a POST request to the API endpoint
+            const response = await api.post(`farm/services/`, data);
+
+            if (response.status === 201) {
+                // The service was booked successfully
+                toast.success(`Service ${name} booked successfully`); // Show a success toast
+                // Reset the form by clearing the state
+                setService("");
+                setName("");
+                setDate("");
+                setTime("");
+                setCost("");
+            } else {
+                // Handle other response statuses if needed
+                toast.error("Failed to book the service"); // Show an error toast
+            }
+        } catch (error) {
+            // Handle network errors or request failure
+            console.error("Error booking the service:", error);
+            toast.error("An error occurred while booking the service"); // Show an error toast
+        }
+    };
+
     return (
-        <div className='flex w-full min-h-screen bg-gray-100'>
-            <div className="flex"><Navbar /></div>
-            <div className="min-h-screen py-12 pl-8 lg:pl-80">
-                <div className="">
-                    <div className="flex items-center h-16 topBar">
+        <div className="flex flex-col min-h-screen bg-gray-100">
+            <div className="fixed"><Navbar /></div>
+
+            <div className="w-full px-8 py-12 lg:pl-80">
+                <div className="h-full">
+                    <div className="flex items-center w-full h-16 topBar">
                         <h1 className="font-bold uppercase">Services</h1>
                     </div>
-                    <div className="fixed grid mainContainerServices">
-                        <div className="topContainer">
-                            <div className="services">
-                                <h1 className="font-medium uppercase">Services Requested</h1>
-                                <div className="mt-4 overflow-x-auto">
-                                    <div className="tableDiv">
-                                        <div className="mt-4 ">
-                                            <table class="exTable shadow-lg bg-white overflow-x-auto">
-                                                <tr>
-                                                    <th class="bg-blue-100 border text-left px-8 py-4 ">#</th>
-                                                    <th class="bg-blue-100  text-left px-8 py-4">Service</th>
-                                                    <th class="bg-blue-100  text-left px-8 py-4">Provider</th>
-                                                    <th class="bg-blue-100  text-left px-8 py-4">Cost</th>
-                                                    <th class="bg-blue-100 text-left px-8 py-4 sm:px-2"></th>
-                                                </tr>
-                                                <tr className="hover:bg-green-100">
-                                                    <td class=" px-8 py-4">1</td>
-                                                    <td class=" px-8 py-4">Plumbing</td>
-                                                    <td class=" px-8 py-4">Dante Sparks</td>
-                                                    <td class=" px-8 py-4">10,000</td>
-                                                </tr>
-                                                <tr className="hover:bg-green-100">
-                                                    <td class=" px-8 py-4 ">2</td>
-                                                    <td class=" px-8 py-4">Centro comercial Moctezuma</td>
-                                                    <td class=" px-8 py-4">Neal Garrison</td>
-                                                    <td class=" px-8 py-4">Spain</td>
-                                                </tr>
-                                                <tr className="hover:bg-green-100">
-                                                    <td class=" px-8 py-4">3</td>
-                                                    <td class=" px-8 py-4">Ernst Handel</td>
-                                                    <td class=" px-8 py-4">Maggie O'Neill</td>
-                                                    <td class=" px-8 py-4">Austria</td>
-                                                </tr>
-                                            </table>
-                                        </div>
+                    <div className="w-full p-6 overflow-y-auto bg-white rounded-lg shadow-md">
+                        <div className="grid mainContainerServices">
+                            <div className="topContainer">
+                                <div className="services">
+                                    <h1 className="font-medium uppercase">Services Requested</h1>
+                                    <div className="mt-4">
+                                        <NumberedListTable service="Ploughing" provider="Makiss Ltd" date="18-12-2023" />
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="mt-4 overflow-x-auto bottomContainer">
-                            <div className="servicesAvailable">
-                                <h1 className="font-medium uppercase">Services Available</h1>
-                                <div className="tableDiv">
-                                    <div className="mt-4 ">
-                                        <table class="exTable shadow-lg bg-white overflow-x-auto">
-                                            <tr>
-                                                <th class="bg-blue-100 border text-left px-8 py-4 ">#</th>
-                                                <th class="bg-blue-100  text-left px-8 py-4">Service</th>
-                                                <th class="bg-blue-100  text-left px-8 py-4">Provider</th>
-                                                <th class="bg-blue-100  text-left px-8 py-4">Cost</th>
-                                                <th class="bg-blue-100 text-left px-8 py-4 sm:px-2"></th>
-                                            </tr>
-                                            <tr className="hover:bg-green-100">
-                                                <td class=" px-8 py-4">1</td>
-                                                <td class=" px-8 py-4">Plumbing</td>
-                                                <td class=" px-8 py-4">Dante Sparks</td>
-                                                <td class=" px-8 py-4">10,000</td>
-                                            </tr>
-                                            <tr className="hover:bg-green-100">
-                                                <td class=" px-8 py-4 ">2</td>
-                                                <td class=" px-8 py-4">Centro comercial Moctezuma</td>
-                                                <td class=" px-8 py-4">Neal Garrison</td>
-                                                <td class=" px-8 py-4">Spain</td>
-                                            </tr>
-                                            <tr className="hover:bg-green-100">
-                                                <td class=" px-8 py-4">3</td>
-                                                <td class=" px-8 py-4">Ernst Handel</td>
-                                                <td class=" px-8 py-4">Maggie O'Neill</td>
-                                                <td class=" px-8 py-4">Austria</td>
-                                            </tr>
-                                        </table>
+                            <div className="mt-4 overflow-x-auto bottomContainer">
+                                <div className="orderService">
+                                    <h1 className="font-medium uppercase">Order a Service</h1>
+                                    <div className="tableDiv">
+                                        <div className="mt-4 ">
+                                            <div className="tableDiv">
+                                                <div className="mt-4 ">
+                                                    <div className="p-4 sm:p-8">
+                                                        <div className="mb-4">
+                                                            <label className="block mb-2 text-sm font-bold text-gray-700">Service</label>
+                                                            <select
+                                                                className="w-full p-2 border rounded"
+                                                                value={service}
+                                                                onChange={handleServiceChange}
+                                                            >
+                                                                <option value="">Select a service</option>
+                                                                <option value="Planting">Planting</option>
+                                                                <option value="Ploughing">Ploughing</option>
+                                                                <option value="Weeding">Weeding</option>
+                                                                {/* Add more service options as needed */}
+                                                            </select>
+                                                        </div>
+
+                                                        <div className="mb-4">
+                                                            <label className="block mb-2 text-sm font-bold text-gray-700">Name</label>
+                                                            <input
+                                                                type="text"
+                                                                className="w-full p-2 border rounded"
+                                                                value={name}
+                                                                onChange={handleNameChange}
+                                                            />
+                                                        </div>
+                                                        <div className="mb-4">
+                                                            <label className="block mb-2 text-sm font-bold text-gray-700">Cost</label>
+                                                            <input
+                                                                type="number"
+                                                                className="w-full p-2 border rounded"
+                                                                value={cost}
+                                                                onChange={handleCostChange}
+                                                            />
+                                                        </div>
+
+                                                        <div className="mb-4">
+                                                            <label className="block mb-2 text-sm font-bold text-gray-700">Date</label>
+                                                            <input
+                                                                type="date"
+                                                                className="w-full p-2 border rounded"
+                                                                value={date}
+                                                                onChange={handleDateChange}
+                                                            />
+                                                        </div>
+
+                                                        <div className="mb-4">
+                                                            <label className="block mb-2 text-sm font-bold text-gray-700">Time</label>
+                                                            <input
+                                                                type="time"
+                                                                className="w-full p-2 border rounded"
+                                                                value={time}
+                                                                onChange={handleTimeChange}
+                                                            />
+                                                        </div>
+
+                                                        <button
+                                                            className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+                                                            onClick={handleBookService}
+                                                        >
+                                                            Book
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    );
-}
+    )
+};
 
 export default Services;
