@@ -27,6 +27,7 @@ from .views import (
     LivestockProduceListView,
     CropProduceListView,
     ChatGPTView,
+    ServiceBookingView,
 )
 
 urlpatterns = [
@@ -39,6 +40,7 @@ urlpatterns = [
 
     path('services/', ServiceListCreateView.as_view(), name='service-list-create'),
     path('services/<int:pk>/', ServiceRetrieveUpdateDeleteView.as_view(), name='service-retrieve-update-delete'),
+    path('services/<int:pk>/book/', ServiceBookingView.as_view(), name='service-booking'),
 
 
     # URL for asking a question

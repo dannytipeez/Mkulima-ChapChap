@@ -67,3 +67,15 @@ class ToolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tool
         fields = '__all__'
+
+class ServiceBookingSerializer(serializers.Serializer):
+    service_id = serializers.IntegerField(required=True)
+    date = serializers.DateField(required=True)
+    time = serializers.TimeField(required=True)
+
+    def validate_service_id(self, value):
+        try:
+            service = Service.objects.get(id=value)
+            return value
+        except Service.DoesNotExist:
+            raise serializers.ValidationError("Service does not exist.")

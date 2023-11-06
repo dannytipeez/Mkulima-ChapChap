@@ -7,12 +7,14 @@ from django.http import JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+
 # Create your views here.
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Service
 from .serializers import ServiceSerializer
+from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from .models import (
@@ -40,6 +42,7 @@ from .serializers import (
     StorageSerializer,
     StoreSerializer,
     ToolSerializer,
+    ServiceBookingSerializer,
 )
 
 
@@ -83,48 +86,113 @@ class FarmRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 
 # View for listing all available services and creating a new service booking
+
+
 class ServiceListCreateView(generics.ListCreateAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["status", "date", "cost"]
     filterset_class = ServiceFilter
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Set the farmer booking the service to the current user
-        serializer.save()  # farmer=self.request.user
+        serializer.save()
+
+    # def create(self, request, *args, **kwargs):
+    #     # Check if the user is a service provider
+    #     if request.user.role == "service_provider" or request.user.role == "admin":
+    #         return super().create(request, *args, **kwargs)
+    #     return Response(
+    #         {"detail": "Only service providers can create services."},
+    #         status=status.HTTP_403_FORBIDDEN
+        # )
+
+
+# class ServiceListCreateView(generics.ListCreateAPIView):
+#     queryset = Service.objects.all()
+#     serializer_class = ServiceSerializer
+#     filter_backends = [DjangoFilterBackend]
+#     filterset_fields = ["status", "date", "cost"]
+#     filterset_class = ServiceFilter
+#     permission_classes = [IsAuthenticated]
+
+#     def perform_create(self, serializer):
+#         # Set the farmer booking the service to the current user
+#         serializer.save()  # farmer=self.request.user
 
 
 class ServiceRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     filter_class = ServiceFilter  # Specify the filter class
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
-    def perform_update(self, serializer):
-        # Custom logic for updating a service booking
-        instance = serializer.save()
-        if instance.status == "Completed":
-            # Implement your logic for handling completed services here
-            pass
+    # def perform_update(self, serializer):
+    #     # Custom logic for updating a service booking
+    #     instance = serializer.save()
+    #     if instance.status == "Completed":
+    #         # Implement your logic for handling completed services here
+    #         pass
 
-    def perform_destroy(self, instance):
-        # Custom logic for canceling a service booking
-        if instance.status == "Pending":
-            # Implement your logic for canceling a pending service here
-            instance.status = "Cancelled"
-            instance.save()
-        else:
-            # Handle other cases as needed
-            pass
+    # def perform_destroy(self, instance):
+    #     # Custom logic for canceling a service booking
+    #     if instance.status == "Pending":
+    #         # Implement your logic for canceling a pending service here
+    #         instance.status = "Cancelled"
+    #         instance.save()
+    #     else:
+    #         # Handle other cases as needed
+    #         pass
+
+
+# booking service
+class ServiceBookingView(APIView):
+    def post(self, request, pk):
+        serializer = ServiceBookingSerializer(
+            data={
+                "service_id": pk,
+                "date": request.data.get("date"),
+                "time": request.data.get("time"),
+                # "farmer": request.data.get("farmer")
+            }
+        )
+        if serializer.is_valid():
+            service_id = serializer.validated_data["service_id"]
+            date = serializer.validated_data["date"]
+            time = serializer.validated_data["time"]
+            # farmer = serializer.validated_data["farmer"]
+            try:
+                service = Service.objects.get(id=service_id)
+                # Check if the service is available
+                if service.availability_status == "Available" and not service.farmer:
+                    # Associate the service with the farmer and set date and time
+                    service.farmer = request.user
+                    service.date = date
+                    service.time = time
+                    service.status = "Pending"
+                    service.availability_status = "Not Available"
+                    service.save()
+                    return Response(
+                        "Service booked successfully", status=status.HTTP_200_OK
+                    )
+                else:
+                    return Response(
+                        "Service is not available for booking",
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            except Service.DoesNotExist:
+                return Response(
+                    "Service does not exist", status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # View for listing all farm activities and creating a new farm activity
 class FarmActivityListCreateView(generics.ListCreateAPIView):
     queryset = FarmActivity.objects.all()
     serializer_class = FarmActivitySerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         # Check if a similar activity already exists
@@ -161,7 +229,7 @@ class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
             activity_type=serializer.validated_data["activity_type"],
             date=serializer.validated_data["date"],
             time=serializer.validated_data["time"],
-            status = serializer.validated_data["status"],
+            status=serializer.validated_data["status"],
         ).exclude(
             pk=instance.pk
         )  # Exclude the current activity from the check
@@ -185,8 +253,6 @@ class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
         )
 
 
-
-
 class ProduceListCreateView(generics.ListCreateAPIView):
     queryset = Produce.objects.all()
     serializer_class = ProduceSerializer
@@ -200,6 +266,7 @@ class ProduceListCreateView(generics.ListCreateAPIView):
     filterset_class = ProduceFilter
     permission_classes = [IsAuthenticated]
 
+
 class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Produce.objects.all()
     serializer_class = ProduceSerializer
@@ -212,6 +279,7 @@ class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     ]
     filterset_class = ProduceFilter
     permission_classes = [IsAuthenticated]
+
 
 class LivestockProduceListView(generics.ListAPIView):
     serializer_class = ProduceSerializer
@@ -234,6 +302,7 @@ class LivestockProduceListView(generics.ListAPIView):
 
         return queryset
 
+
 class CropProduceListView(generics.ListAPIView):
     serializer_class = ProduceSerializer
     permission_classes = [IsAuthenticated]
@@ -247,12 +316,12 @@ class CropProduceListView(generics.ListAPIView):
 
         return queryset
 
+
 # tools and maintenance views
 class ToolListCreateView(generics.ListCreateAPIView):
     queryset = Tool.objects.all()
     serializer_class = ToolSerializer
     permission_classes = [IsAuthenticated]
-
 
 
 class ToolRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -381,6 +450,7 @@ class CheckStorageCapacityView(generics.ListCreateAPIView):
             status=status.HTTP_200_OK,
         )
 
+
 # View for asking a question
 class QuestionCreateView(generics.CreateAPIView):
     serializer_class = QuestionSerializer
@@ -402,23 +472,24 @@ class AnswerView(generics.ListCreateAPIView):
     serializer_class = AnswerSerializer
     # permission_classes = [IsAuthenticated]
 
-@method_decorator(csrf_exempt, name='dispatch')
+
+@method_decorator(csrf_exempt, name="dispatch")
 class ChatGPTView(View):
     def post(self, request):
-        question = request.POST.get('question')
+        question = request.POST.get("question")
         # Define your OpenAI API key
-        api_key= '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'
-        #api_key = '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' freakoutbond
+        api_key = "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"
+        # api_key = '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' freakoutbond
 
         # Make a request to the GPT-3 model
         openai.api_key = api_key
         response = openai.Completion.create(
             engine="text-davinci-002",
             prompt=f"Ask GPT-3: {question}",
-            max_tokens=50  # Adjust the response length as needed
+            max_tokens=50,  # Adjust the response length as needed
         )
 
         answer = response.choices[0].text
 
         # Return the answer as JSON
-        return JsonResponse({'answer': answer})
+        return JsonResponse({"answer": answer})

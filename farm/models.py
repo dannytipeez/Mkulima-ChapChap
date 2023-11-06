@@ -32,6 +32,7 @@ class FarmActivity(models.Model):
         ("Completed", "Completed"),
         ("Cancelled", "Cancelled"),
     )
+    
 
     farmer = models.ForeignKey(
         "accounts.UserAccount", on_delete=models.CASCADE
@@ -42,7 +43,7 @@ class FarmActivity(models.Model):
     date = models.DateField()  # Date for the activity
     time = models.TimeField()  # Time for the activity
     resources_required = (
-        models.TextField()
+        models.TextField(null=True, blank=True)
     )  # Description of resources required (e.g., 10 pangas)
     notes = models.TextField(blank=True, null=True)  # Additional notes or instructions
     status = models.CharField(
@@ -95,6 +96,13 @@ class Produce(models.Model):
 
 # Model for Service
 class Service(models.Model):
+    SERVICE_CHOICES = (
+        ("Planting", "Planting"),
+        ("Ploughing", "Ploughing"),
+        ("Weeding", "Weeding"),
+        # Add more activity types as needed
+    )
+
     STATUS_CHOICES = (
         ("Pending", "Pending"),
         ("In Progress", "In Progress"),
@@ -102,20 +110,50 @@ class Service(models.Model):
         ("Cancelled", "Cancelled"),
     )
 
-    name = models.CharField(max_length=255)
+    AVAILABILITY_CHOICES = (
+        ("Available", "Available"),
+        ("Not Available", "Not Available"),
+    )
+
+    name = models.CharField(max_length=255, null=True, blank=True)
     farmer = models.ForeignKey(
-        "accounts.UserAccount", on_delete=models.CASCADE
-    )  # The farmer booking the service
-    cost = models.DecimalField(max_digits=10, decimal_places=2)  # Cost of the service
-    date = models.DateField()  # Date when the service will be done
-    time = models.TimeField()  # Time of the day when the service will be done
+        "accounts.UserAccount",
+        on_delete=models.CASCADE,
+        related_name="booked_services",
+        null=True,
+        blank=True,
+    )
+    service_type = models.CharField(
+        max_length=20, choices=SERVICE_CHOICES, null=True, blank=False
+    )
+    service_provider = models.ForeignKey(
+        "accounts.ServiceProviderProfile",
+        on_delete=models.CASCADE,
+        related_name="services_offered",
+        null=True,
+        blank=False,
+    )
+    cost = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )  # Cost of the service
+    date = models.DateField(null=True, blank=True)  # Date when the service will be done
+    time = models.TimeField(
+        null=True, blank=True
+    )  # Time of the day when the service will be done
     notes = models.TextField(blank=True, null=True)  # Additional notes or instructions
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default="Pending"
+        max_length=20, choices=STATUS_CHOICES, default="Pending", null=True, blank=True
+    )
+    availability_status = models.CharField(
+        max_length=20,
+        choices=AVAILABILITY_CHOICES,
+        default="Not Available",
+        null=True,
+        blank=True,
     )  # Status of the service
 
     def __str__(self):
-        return f"{self.service_type} for {self.farmer.name} on {self.date} at {self.time} - Status: {self.status}"
+        return f"{self.name} for {self.farmer.username} on {self.date} at {self.time} - Status: {self.status}"
 
 
 class Question(models.Model):
