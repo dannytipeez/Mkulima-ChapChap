@@ -41,7 +41,7 @@ export default function FarmActivityPage() {
         // Reset the form by clearing the state
         setFarmActivityName("");
         setSelectedDate("");
-        setSelectedDate("");
+        setSelectedTime("");
       } else {
         // Handle other response statuses if needed
         toast.error("Failed to plan farm activity"); // Show an error toast
