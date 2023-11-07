@@ -32,18 +32,17 @@ class FarmActivity(models.Model):
         ("Completed", "Completed"),
         ("Cancelled", "Cancelled"),
     )
-    
 
     farmer = models.ForeignKey(
-        "accounts.UserAccount", on_delete=models.CASCADE
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
     )  # The farmer planning the activity
     activity_type = models.CharField(
         max_length=20, choices=ACTIVITY_CHOICES
     )  # Type of activity
     date = models.DateField()  # Date for the activity
     time = models.TimeField()  # Time for the activity
-    resources_required = (
-        models.TextField(null=True, blank=True)
+    resources_required = models.TextField(
+        null=True, blank=True
     )  # Description of resources required (e.g., 10 pangas)
     notes = models.TextField(blank=True, null=True)  # Additional notes or instructions
     status = models.CharField(

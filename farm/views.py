@@ -1,12 +1,16 @@
+import openai
+
 from django.shortcuts import render
 from .filters import ServiceFilter, ProduceFilter  # Import the filter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.contenttypes.models import ContentType
-import openai
 from django.http import JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
+# from braces.views import CsrfExemptMixin
+
+# from django.views.decorators.csrf import CsrfProtectMixin
 
 # Create your views here.
 from rest_framework import generics, status
@@ -94,7 +98,7 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["status", "date", "cost"]
     filterset_class = ServiceFilter
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save()
@@ -106,7 +110,7 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     #     return Response(
     #         {"detail": "Only service providers can create services."},
     #         status=status.HTTP_403_FORBIDDEN
-        # )
+    # )
 
 
 # class ServiceListCreateView(generics.ListCreateAPIView):
@@ -126,7 +130,7 @@ class ServiceRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     filter_class = ServiceFilter  # Specify the filter class
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     # def perform_update(self, serializer):
     #     # Custom logic for updating a service booking
@@ -217,7 +221,7 @@ class FarmActivityListCreateView(generics.ListCreateAPIView):
 class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FarmActivity.objects.all()
     serializer_class = FarmActivitySerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         # Check if a similar activity already exists
@@ -473,23 +477,61 @@ class AnswerView(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated]
 
 
-@method_decorator(csrf_exempt, name="dispatch")
+# @method_decorator(csrf_exempt, name="dispatch")
+# class ChatGPTView(View):
+#     def __init__(self):
+#         client = OpenAI()
+
+#     def post(self, request):
+#         question = request.POST.get("question")
+#         # Define your OpenAI API key
+#         api_key = "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"
+#         # api_key = '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' freakoutbond
+
+#         # Make a request to the GPT-3 model
+#         openai.api_key = api_key
+#         response = openai.Completion.create(
+#             engine="text-davinci-002",
+#             prompt=f"Ask GPT-3: {question}",
+#             max_tokens=50,  # Adjust the response length as needed
+#         )
+
+#         answer = response.choices[0].text
+
+#         # Return the answer as JSON
+#         return JsonResponse({"answer": answer})
+
+
+# "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"
+# @method_decorator(csrf_protect, name="dispatch")
 class ChatGPTView(View):
+    # authentication_classes = []
+
     def post(self, request):
         question = request.POST.get("question")
-        # Define your OpenAI API key
-        api_key = "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"
-        # api_key = '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' freakoutbond
 
-        # Make a request to the GPT-3 model
+        # print("question", question)
+
+        # Define your OpenAI API key
+        api_key = "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"
+
+        # Set up your OpenAI API key
         openai.api_key = api_key
-        response = openai.Completion.create(
-            engine="text-davinci-002",
-            prompt=f"Ask GPT-3: {question}",
-            max_tokens=50,  # Adjust the response length as needed
+
+        # Define the conversation as a list of messages
+        conversation = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": question},
+        ]
+
+        # Make a request to the GPT-3.5-turbo model
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=conversation,
         )
 
-        answer = response.choices[0].text
+        # Extract the answer from the response
+        answer = response.choices[0].message["content"]
 
-        # Return the answer as JSON
+        # Return the answer as a JSON response
         return JsonResponse({"answer": answer})
