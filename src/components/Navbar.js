@@ -17,8 +17,24 @@ import { CgProfile } from "react-icons/cg";
 import { FaRegComments } from "react-icons/fa";
 import { BiMessageSquareDots, BiCalendarEdit } from "react-icons/bi";
 
+import { useDispatch, useSelector } from 'react-redux';
+import { logOut, auth } from '@/redux/features/auth-Slice';
+import { useRouter } from 'next/navigation';
+
 
 function Sidebar() {
+    const dispatch = useDispatch();
+    const router = useRouter();
+
+
+
+    const handleLogout = () => {
+        dispatch(logOut())
+            .unwrap()
+            .then(() => {
+                router.push('/login'); // Redirect to login page after logout
+            });
+    };
 
     return (
         <div>
@@ -53,7 +69,7 @@ function Sidebar() {
                         </div>
                         {/* Logout */}
                         <div className="my-6">
-                            <div className="flex items-center justify-start gap-4 p-2 pl-5 m-auto mb-2 text-white bg-green-600 rounded-md cursor-pointer hover:bg-green-900 group hover:shadow-lg hover:text-white">
+                            <div onClick={handleLogout} className="flex items-center justify-start gap-4 p-2 pl-5 m-auto mb-2 text-white bg-green-600 rounded-md cursor-pointer hover:bg-green-900 group hover:shadow-lg hover:text-white">
                             <MdOutlineLogout />
                                 <button className="text-base font-semibold text-white group-hover:text-white">Logout</button>
                             </div>

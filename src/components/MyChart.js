@@ -12,16 +12,14 @@ const MyChart = () => {
     const [livestockProduceData, setLivestockProduceData] = useState([]);
     const [cropProduceData, setCropProduceData] = useState([]);
 
+
     const timePeriods = {
-        1: [12, 19],
-        7: [50, 60],
-        30: [10, 180],
-        90: [600, 540],
-        365: [180, 2160],
+        1: [],
+        7: [],
+        30: [],
+        90: [],
+        365: [],
     };
-
-
-
 
     useEffect(() => {
         const updateChartData = (period) => {
@@ -49,11 +47,11 @@ const MyChart = () => {
 
     const totalOfLivestockProduce = livestockProduceData.reduce((total, item) => total + item.quantity, 0);
 
-    console.log('livestock', totalOfLivestockProduce);
+    // console.log('livestock', totalOfLivestockProduce);
 
     const totalOfCropProduce = cropProduceData.reduce((total, item) => total + item.quantity, 0);
 
-    console.log('crop', totalOfCropProduce);
+    // console.log('crop', totalOfCropProduce);
 
     const chartData = {
         labels: ['Produce from Crops', 'Produce from Livestock'],
@@ -74,35 +72,38 @@ const MyChart = () => {
         <div className="w-full">
             <div className="grid justify-center grid-cols-2 gap-2 py-2 mb-4 lg:grid-cols-5 md:grid-cols-3">
                 <button
-                    className={`px-4 py-2 mr-2 rounded-lg focus:outline-none ${selectedTimePeriod === 'Today' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                    className={`px-4 py-2 mr-2 rounded-lg focus:outline-none ${selectedTimePeriod === 1 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
                         }`}
                     onClick={() => setSelectedTimePeriod(1)}
                 >
                     Today
                 </button>
                 <button
-                    className={`px-4 py-2 md:px-3 sm:px-2 mr-2 rounded-lg focus:outline-none ${selectedTimePeriod === 'Last 7 Days' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                    className={`px-4 py-2 md:px-3 sm:px-2 mr-2 rounded-lg focus:outline-none ${selectedTimePeriod === 7 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
                         }`}
                     onClick={() => setSelectedTimePeriod(7)}
                 >
                     Last 7 Days
                 </button>
                 <button
-                    className={`px-4 py-2 mr-2 rounded-lg focus:outline-none ${selectedTimePeriod === 'Last 1 Month' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                    className={`px-4 py-2 mr-2 rounded-lg focus:outline-none ${selectedTimePeriod === 30 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
                         }`}
-                    onClick={() => setSelectedTimePeriod(30)}
+                    onClick={() => {
+                        setSelectedTimePeriod(30)
+
+                    }}
                 >
                     Last 1 Month
                 </button>
                 <button
-                    className={`px-4 py-2 mr-2 rounded-lg focus:outline-none ${selectedTimePeriod === 'Last 3 Months' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                    className={`px-4 py-2 mr-2 rounded-lg focus:outline-none ${selectedTimePeriod === 90 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
                         }`}
                     onClick={() => setSelectedTimePeriod(90)}
                 >
                     Last 3 Months
                 </button>
                 <button
-                    className={`px-4 py-2 rounded-lg focus:outline-none ${selectedTimePeriod === 'Last 1 Year' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                    className={`px-4 py-2 rounded-lg focus:outline-none ${selectedTimePeriod === 365 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
                         }`}
                     onClick={() => setSelectedTimePeriod(365)}
                 >
@@ -110,7 +111,15 @@ const MyChart = () => {
                 </button>
             </div>
             <Doughnut data={chartData} />
-        </div>
+
+            <div className="valuesProduce flex place-center justify-center">
+                
+                <button className="bg-green-500 text-white p-8 rounded-lg space-x-3">{totalOfCropProduce}</button>
+                <span className="px-8 py-6"></span>
+                <button className="bg-red-500 text-white p-8 rounded-lg">{totalOfLivestockProduce}</button>
+            </div>
+
+        </div >
     );
 }
 

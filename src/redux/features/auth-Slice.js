@@ -29,15 +29,15 @@ export const loadUser = createAsyncThunk('auth/loadUser', async (_, { getState, 
         try {
             const res = await axios.get(`http://localhost:8000/api/v1/auth/users/me/`, config);
             console.log(res.data);
-		const {email, username, role} = res.data;
-		localStorage.setItem('username', username);
-        localStorage.setItem('role', role);
-        localStorage.setItem('email', email);
-
-            localStorage.setItem("user", res.data);
+            const { email, username, role } = res.data;
+            localStorage.setItem('username', username);
+            localStorage.setItem('role', role);
+            localStorage.setItem('email', email);
+            localStorage.setItem("user", JSON.stringify(res.data));
             localStorage.setItem("pass", true);
             dispatch(userLoadedSuccess(res.data));
             return res.data;
+
         } catch (err) {
             return rejectWithValue(err.response.data); // Handle errors
         }
@@ -124,21 +124,21 @@ export const loginUser = createAsyncThunk(
 export const logOut = createAsyncThunk(
     'auth/logOut',
     async (_, { dispatch }) => {
-      try {
-        // Clear access token from local storage
-        localStorage.removeItem('access');
+        try {
+            // Clear access token from local storage
+            localStorage.removeItem('access');
 
-        // Optionally, clear refresh token from local storage if needed
-        localStorage.removeItem('refresh');
+            // Optionally, clear refresh token from local storage if needed
+            localStorage.removeItem('refresh');
 
-        // Clear any other user-related data or session-related data
-        // Dispatch the action to reset the authentication state
-        dispatch(logout()); // Dispatch your logout action creator
-      } catch (e) {
-        console.error(e);
-      }
+            // Clear any other user-related data or session-related data
+            // Dispatch the action to reset the authentication state
+            dispatch(logout()); // Dispatch your logout action creator
+        } catch (e) {
+            console.error(e);
+        }
     }
-  );
+);
 
 
 
