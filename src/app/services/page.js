@@ -9,6 +9,7 @@ import { toast } from "react-toastify"; // Import the toast library
 import "react-toastify/dist/ReactToastify.css";
 
 const Services = () => {
+    const [reloadNumberedList, setReloadNumberedList] = useState(false);
     const [service, setService] = useState('');
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
@@ -37,6 +38,8 @@ const Services = () => {
         setName(e.target.value);
     };
 
+
+
     const handleBookService = async () => {
         // Prepare the data to be sent to the API
         const data = {
@@ -60,6 +63,7 @@ const Services = () => {
                 setDate("");
                 setTime("");
                 setCost("");
+                setReloadNumberedList(prevState => !prevState);
             } else {
                 // Handle other response statuses if needed
                 toast.error("Failed to book the service"); // Show an error toast
@@ -84,9 +88,9 @@ const Services = () => {
                         <div className="grid mainContainerServices">
                             <div className="topContainer">
                                 <div className="services">
-                                    <h1 className="font-medium uppercase">Services Requested</h1>
+                                    <h1 className="font-medium uppercase">Services</h1>
                                     <div className="mt-4">
-                                        <NumberedListTable service="Ploughing" provider="Makiss Ltd" date="18-12-2023" />
+                                        <NumberedListTable reload={reloadNumberedList}/>
                                     </div>
                                 </div>
                             </div>

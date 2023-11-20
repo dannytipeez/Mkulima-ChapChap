@@ -5,6 +5,8 @@ import { Provider } from 'react-redux'
 import Navbar from '@/components/Navbar'
 import { store } from '@/redux/store'
 import { auth } from '@/redux/features/auth-Slice'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -14,6 +16,7 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
+  <ToastContainer />
   return (
 
     <html lang="en">

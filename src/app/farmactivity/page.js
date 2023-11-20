@@ -16,6 +16,8 @@ export default function FarmActivityPage() {
   const [farmActivityName, setFarmActivityName] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [reloadNumberedList, setReloadNumberedList] = useState(false);
+
 
   // const handleFarmActivitySubmit = () => {
   //   console.log("Farm Activity:", farmActivityName);
@@ -42,6 +44,8 @@ export default function FarmActivityPage() {
         setFarmActivityName("");
         setSelectedDate("");
         setSelectedTime("");
+        setReloadNumberedList(prevState => !prevState);
+
       } else {
         // Handle other response statuses if needed
         toast.error("Failed to plan farm activity"); // Show an error toast
@@ -66,9 +70,9 @@ export default function FarmActivityPage() {
           <section className="grid grid-cols-1 md:grid-cols-2">
             {/* Top Section */}
             <div className="w-full p-4">
-              <h1 className="font-medium uppercase">Upcoming Farm Activities</h1>
+              <h1 className="font-medium uppercase">Farm Activities</h1>
               <div className="mt-4">
-                <ActivityTable activity="Weeding" date="12-05-2023" />
+                <ActivityTable reload={reloadNumberedList} />
               </div>
             </div>
 

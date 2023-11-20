@@ -1,15 +1,26 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import { useDispatch, useSelector } from 'react-redux';
+import { checkAuthenticated, loadUser, auth } from '@/redux/features/auth-Slice';
+import api from '../../utils/api';
+import { toast } from "react-toastify"; // Import the toast library
+import "react-toastify/dist/ReactToastify.css";
 
 const Profile = () => {
+
+    const storedUser = localStorage.getItem('user');
+    const retrievedUser = JSON.parse(storedUser);
+    console.log(retrievedUser);
+    
     // Define user details
-    const [userDetails, setUserDetails] = useState({
-        fullName: "John Doe",
-        username: "johndoe123",
-        county: "Example County",
-        farmLocation: "Farm Location Details",
+     const [userDetails, setUserDetails] = useState({
+        fullName: `${retrievedUser.first_name} ${retrievedUser.last_name}`,
+        username: retrievedUser.username,
+        county: "",
+        farmLocation: "",
+        profilePic: null,  // New state for the profile picture
     });
 
     // Function to update user details
@@ -19,6 +30,31 @@ const Profile = () => {
             [field]: value,
         });
     };
+
+       useEffect(() => {
+        const handleGetProfileData = async () => {
+            try {
+                const response = await api.get(`users/profile_data/`);
+
+                if (response.status === 200) {
+                    const farm = response.data.farm;
+                    setUserDetails({
+                        ...userDetails,
+                        county: farm.county,
+                        farmLocation: farm.location,
+                        profilePic: `http://localhost:8000${response.data.farmer_profile.profile_pic}`,
+                    });
+
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                toast.error("An error occurred while fetching data");
+            }
+        };
+        handleGetProfileData();
+    }, []);
+    console.log(userDetails.profilePic);
+
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
@@ -31,8 +67,15 @@ const Profile = () => {
                     <div className="p-6 bg-white rounded-lg shadow-md">
                         <div className="flex flex-col items-center">
                             {/* User Image */}
-                            <div className="w-24 h-24 bg-gray-200 rounded-full">
+                            <div className="w-24 h-24 bg-gray-200 rounded-full profilePic">
                                 {/* You can add an image here */}
+                            {userDetails.profilePic && (
+                            <img
+                                src={userDetails.profilePic}
+                                alt="Profile"
+                                className="w-full h-full object-cover rounded-full"
+                            />
+                            )}
                             </div>
                             <h3 className="mt-4 text-lg">{userDetails.fullName}</h3>
                             <p className="text-gray-600">@{userDetails.username}</p>

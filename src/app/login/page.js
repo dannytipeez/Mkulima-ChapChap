@@ -19,7 +19,6 @@ export default function Login() {
         password: '',
     });
 
-
     const { username, email, password } = formData;
 
     const [errors, setErrors] = useState({});
@@ -34,16 +33,22 @@ export default function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Implement form validation and login logic here
         dispatch(loginUser({ username, email, password }))
-            .unwrap()
-            .then(() => {
-                dispatch(checkAuthenticated()); // Check if the user is authenticated
-            });
-        router.push('/dashboard');
+        .unwrap()
+        .then(() => {
+            dispatch(checkAuthenticated())
+                .unwrap()
+                .then((authenticated) => {
+                    if (isAuthenticated) {
+                        router.push('/dashboard');
+                    } else {
+                        // Handle the case where authentication failed
+                        // You might want to display an error message
+                        console.log("Authentication failed");
+                    }
+                });
+        });
     };
-
-
 
     return (
         <div>

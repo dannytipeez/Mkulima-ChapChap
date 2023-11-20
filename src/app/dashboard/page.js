@@ -84,13 +84,13 @@ export default function Dashboard() {
                                 <div className="services">
                                     <h1 className="font-medium uppercase">Services Requested</h1>
                                     <div className="mt-4">
-                                        <NumberedListTable service="Ploughing" provider="Makiss Ltd" date="18-12-2023" />
+                                        <NumberedListTable numberOfItems={4} />
                                     </div>
                                 </div>
                                 <div className="w-full p-4 farmActivities">
                                     <h1 className="font-medium uppercase">Upcoming Farm Activities</h1>
                                     <div className="mt-4">
-                                        <ActivityTable activity="Weeding" date="12-05-2023" />
+                                        <ActivityTable numberOfItems={4} />
                                     </div>
                                 </div>
                             </div>
