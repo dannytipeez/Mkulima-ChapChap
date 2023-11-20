@@ -79,3 +79,5 @@ class ServiceBookingSerializer(serializers.Serializer):
             return value
         except Service.DoesNotExist:
             raise serializers.ValidationError("Service does not exist.")
+
+

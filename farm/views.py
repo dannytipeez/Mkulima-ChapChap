@@ -8,6 +8,12 @@ from django.http import JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
+
+'''third parties'''
+from decouple import config
+OPEN_AI_API_KEY = config('API_KEY')
+
+
 # from braces.views import CsrfExemptMixin
 
 # from django.views.decorators.csrf import CsrfProtectMixin
@@ -510,13 +516,15 @@ class ChatGPTView(View):
     def post(self, request):
         question = request.POST.get("question")
 
-        # print("question", question)
+        OPEN_AI_API_KEY = config('API_KEY')
+
+        # print("question", question)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
 
         # Define your OpenAI API key
-        api_key = "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"
-
+        # api_key = "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"
+        print(OPEN_AI_API_KEY)
         # Set up your OpenAI API key
-        openai.api_key = api_key
+        openai.api_key = OPEN_AI_API_KEY
 
         # Define the conversation as a list of messages
         conversation = [
