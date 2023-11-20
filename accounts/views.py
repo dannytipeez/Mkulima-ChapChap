@@ -11,6 +11,11 @@ from django.utils.encoding import force_str
 from accounts.models import UserAccount
 from rest_framework import generics
 from .serializers import ActiveUserSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import ProfileDataSerializer
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CustomActivationView(View):
@@ -36,3 +41,11 @@ class UserListView(generics.ListAPIView):
 class ActiveUserListView(generics.ListAPIView):
     queryset = UserAccount.objects.filter(is_active=True)
     serializer_class = ActiveUserSerializer
+
+
+class ProfileDataAPIView(APIView):
+    def get(self, request):
+        user = request.user  # Assuming the user is authenticated
+
+        serializer = ProfileDataSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

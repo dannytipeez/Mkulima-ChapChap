@@ -67,6 +67,7 @@ class FarmerProfile(models.Model):
     contact_info = models.TextField(
         null=True, blank=True
     )  # Contact information of the expert
+    profile_pic = models.ImageField(upload_to="farmer_profile_images/", blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -79,6 +80,8 @@ class AgriculturalExpertProfile(models.Model):
         null=True, blank=True
     )  # Contact information of the expert
     expertise = models.TextField(null=True, blank=True)
+    profile_pic = models.ImageField(upload_to="expert_profile_images/", blank=True, null=True)
+
 
     def __str__(self):
         return self.user.username
@@ -90,6 +93,8 @@ class ServiceProviderProfile(models.Model):
         null=True, blank=True
     )  # Contact information of the expert
     store_location = models.CharField(max_length=100, null=True, blank=True)
+    profile_pic = models.ImageField(upload_to="provider_profile_images/", blank=True, null=True)
+
 
     def __str__(self):
         return self.user.username
