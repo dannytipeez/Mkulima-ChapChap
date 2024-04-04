@@ -507,9 +507,9 @@ class ChatGPTView(View):
     def post(self, request):
         question = request.POST.get("question")
 
-        #OPEN_AI_API_KEY = config('API_KEY')
+        OPEN_AI_API_KEY = config('API_KEY')
 
-        openai.api_key = "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"
+        # openai.api_key = "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"
 
         #openai.api_key = OPEN_AI_API_KEY
 
@@ -533,8 +533,8 @@ class ChatGPTView(View):
 
 class WeatherDataAPIView(APIView):
     def get(self, request, city):
-        #OPEN_WEATHERMAP_API_KEY = config('OPEN_WEATHERMAP_API_KEY')
-        OPEN_WEATHERMAP_API_KEY = "4f91f34409c80ba51c4fadad7e9f1a92"
+        OPEN_WEATHERMAP_API_KEY = config('OPEN_WEATHERMAP_API_KEY')
+        #"4f91f34409c80ba51c4fadad7e9f1a92"
         print(OPEN_WEATHERMAP_API_KEY)
         api_key = OPEN_WEATHERMAP_API_KEY  # Replace with your actual API key
         current_weather, forecast = self.get_weather(api_key, city)
