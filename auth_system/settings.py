@@ -14,7 +14,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 OPEN_AI_API_KEY = config('API_KEY')
-# "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"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 

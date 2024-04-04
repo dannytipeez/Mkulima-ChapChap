@@ -55,7 +55,6 @@ from .serializers import (
 import requests
 
 from decouple import config
-OPEN_AI_API_KEY = config('API_KEY')
 
 
 # crud views for livestock and crops
@@ -509,9 +508,7 @@ class ChatGPTView(View):
 
         OPEN_AI_API_KEY = config('API_KEY')
 
-        # openai.api_key = "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"
-
-        #openai.api_key = OPEN_AI_API_KEY
+        openai.api_key = OPEN_AI_API_KEY
 
         # Define the conversation as a list of messages
         conversation = [
