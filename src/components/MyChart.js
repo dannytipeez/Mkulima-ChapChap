@@ -38,20 +38,12 @@ const MyChart = () => {
         };
 
         updateChartData(selectedTimePeriod);
-        fetchData(`farm/produce/?last_days=${selectedTimePeriod}&content_type=17`, setLivestockProduceData);
-        fetchData(`farm/produce/?last_days=${selectedTimePeriod}&content_type=19`, setCropProduceData);
+        fetchData(`farm/produce/?last_days=${selectedTimePeriod}&content_type=13`, setLivestockProduceData);
+        fetchData(`farm/produce/?last_days=${selectedTimePeriod}&content_type=14`, setCropProduceData);
     }, [selectedTimePeriod]);
 
-    console.log(cropProduceData);
-    console.log(livestockProduceData);
-
     const totalOfLivestockProduce = livestockProduceData.reduce((total, item) => total + item.quantity, 0);
-
-    // console.log('livestock', totalOfLivestockProduce);
-
     const totalOfCropProduce = cropProduceData.reduce((total, item) => total + item.quantity, 0);
-
-    // console.log('crop', totalOfCropProduce);
 
     const chartData = {
         labels: ['Produce from Crops', 'Produce from Livestock'],
@@ -112,15 +104,16 @@ const MyChart = () => {
             </div>
             <Doughnut data={chartData} />
 
-            <div className="valuesProduce flex place-center justify-center">
-                
-                <button className="bg-green-500 text-white p-8 rounded-lg space-x-3">{totalOfCropProduce}</button>
+            <div className="flex justify-center valuesProduce place-center">
+
+                <button className="p-8 space-x-3 text-white bg-green-500 rounded-lg">{totalOfCropProduce}</button>
                 <span className="px-8 py-6"></span>
-                <button className="bg-red-500 text-white p-8 rounded-lg">{totalOfLivestockProduce}</button>
+                <button className="p-8 text-white bg-red-500 rounded-lg">{totalOfLivestockProduce}</button>
             </div>
 
         </div >
     );
-}
+};
+
 
 export default MyChart;

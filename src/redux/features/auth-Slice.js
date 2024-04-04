@@ -4,14 +4,15 @@ import axios from 'axios';
 
 
 const initialState = {
-    auth: {
-        access: typeof window !== 'undefined' ? localStorage.getItem('access') : null,
-        refresh: typeof window !== 'undefined' ? localStorage.getItem('refresh') : null,
-        isAuthenticated: null,
-        user: null,
-    },
+  auth: {
+    access: typeof window !== 'undefined' ? localStorage.getItem('access') : null,
+    refresh: typeof window !== 'undefined' ? localStorage.getItem('refresh') : null,
+    isAuthenticated: null,
+    user: null,
+  },
+  loading: false,
+  error: null,
 };
-
 
 // Define an async thunk action to load the user
 export const loadUser = createAsyncThunk('auth/loadUser', async (_, { getState, dispatch, rejectWithValue }) => {
@@ -83,42 +84,35 @@ export const checkAuthenticated = createAsyncThunk(
 );
 
 export const loginUser = createAsyncThunk(
-    'auth/loginUser',
-    async ({ username, email, password }, { dispatch }) => {
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-        };
+  'auth/loginUser',
+  async ({ username, email, password }, { dispatch }) => {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    };
 
-        const body = JSON.stringify({ username, email, password });
+    const body = JSON.stringify({ username, email, password });
 
-        try {
-            const res = await axios.post(
-                `http://localhost:8000/api/v1/auth/jwt/create/`,
-                body,
-                config
-            );
+    try {
+      const res = await axios.post(
+        'http://localhost:8000/api/v1/auth/jwt/create/',
+        body,
+        config
+      );
 
-            dispatch(loginSuccess(res.data)); // Dispatch the login success action
-            //console.log("Printing results");
-            //console.log(res.data);
-            //console.log("results above");
-            const { access, refresh } = res.data;
+      dispatch(loginSuccess(res.data));
+      const {access, refresh} = res.data;
+      localStorage.setItem('access', access);
+      localStorage.setItem('refresh', refresh);
+      dispatch(loadUser()); // Load user data after login
 
-            // Save the tokens to localStorage
-            localStorage.setItem('access', access);
-            localStorage.setItem('refresh', refresh);
-            // console.log("logged in successfully");
-            // console.log(res.data);
-            // dispatch(checkAuthenticated());
-            dispatch(loadUser()); // Load user data after login
-
-        } catch (err) {
-            console.log(err);
-        }
+    } catch (err) {
+      console.log(err);
+      dispatch(loginFail(err.response.data));
     }
+  }
 );
 
 export const logOut = createAsyncThunk(
@@ -138,6 +132,94 @@ export const logOut = createAsyncThunk(
             console.error(e);
         }
     }
+);
+
+export const registerUser = createAsyncThunk(
+  'auth/registerUser',
+  async ({ username, role, phone, email, password, re_password }, { dispatch }) => {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const body = JSON.stringify({ username, role, phone, email, password, re_password });
+
+    try {
+      const res = await axios.post(
+        'http://localhost:8000/api/v1/auth/users/',
+        body,
+        config
+      );
+
+      dispatch(signupSuccess()); // Dispatch the signup success action
+      console.log('Registration successful');
+      return res.data;
+
+    } catch (err) {
+      console.log(err);
+      return err.response.data; // Return error data
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async ({ email }, { dispatch }) => {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const body = JSON.stringify({ email });
+
+    try {
+      const res = await axios.post(
+        'http://localhost:8000/api/v1/auth/users/reset_password/',
+        body,
+        config
+      );
+
+      console.log('Password reset email sent');
+      dispatch(passwordResetSuccess());
+      return res.data;
+
+    } catch (err) {
+      console.log(err);
+      return err.response.data; // Return error data
+    }
+  }
+);
+
+export const resetPasswordConfirm = createAsyncThunk(
+  'auth/resetPasswordConfirm',
+  async ({ uid, token, new_password, re_new_password }, { dispatch }) => {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const body = JSON.stringify({ uid, token, new_password, re_new_password });
+
+    try {
+      const res = await axios.post(
+        'http://localhost:8000/api/v1/auth/users/reset_password_confirm/',
+        body,
+        config
+      );
+
+      console.log('Password reset successful');
+      dispatch(passwordResetConfirmSuccess());
+      return res.data;
+
+    } catch (err) {
+      console.log("error setting new password")
+      console.log(err);
+      return err.response.data; // Return error data
+    }
+  }
 );
 
 
@@ -175,6 +257,22 @@ export const auth = createSlice({
             state.isAuthenticated = false;
             state.user = null;
         },
+        loginFail: (state, action) => {
+          state.loading = false;
+          state.isAuthenticated = false;
+          state.error = action.payload;
+        },
+        signupFail: (state, action) => {
+          state.loading = false;
+          state.isAuthenticated = false;
+          state.error = action.payload;
+        },
+        loadUserFail: (state, action) => {
+          state.loading = false;
+          state.isAuthenticated = false;
+          state.user = null;
+          state.error = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -192,6 +290,19 @@ export const auth = createSlice({
                 state.isAuthenticated = false;
                 state.user = null;
                 state.error = action.payload;
+            })
+            .addCase(loginUser.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(loginUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.isAuthenticated = true;
+                state.error = null;
+            })
+            .addCase(loginUser.rejected, (state, action) => {
+                state.loading = false;
+                state.isAuthenticated = false;
+                state.error = action.payload;
             });
     },
 });
@@ -202,8 +313,12 @@ export const {
     signupSuccess,
     userLoadedSuccess,
     authenticatedFail,
-    userLoadedFail,
     logout,
+    passwordResetSuccess,
+    passwordResetConfirmSuccess,
+    loginFail,
+    signupFail,
+    loadUserFail,
 } = auth.actions;
 
 export default auth.reducer;

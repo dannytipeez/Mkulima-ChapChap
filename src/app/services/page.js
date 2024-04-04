@@ -33,7 +33,6 @@ const Services = () => {
         setCost(e.target.value);
     };
 
-
     const handleNameChange = (e) => {
         setName(e.target.value);
     };
@@ -113,7 +112,6 @@ const Services = () => {
                                                                 <option value="Planting">Planting</option>
                                                                 <option value="Ploughing">Ploughing</option>
                                                                 <option value="Weeding">Weeding</option>
-                                                                {/* Add more service options as needed */}
                                                             </select>
                                                         </div>
 

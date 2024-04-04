@@ -1,9 +1,6 @@
-
 'use client';
 
-// FarmActivityPage.js
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiCalendar } from "react-icons/fi";
 import WeatherCard from "@/components/WeatherCard"; // Import the WeatherCard component
 import ActivityTable from "@/components/ActivityTable";
@@ -11,6 +8,8 @@ import Navbar from "@/components/Navbar";
 import { toast } from "react-toastify"; // Import the toast library
 import "react-toastify/dist/ReactToastify.css";
 import api from '../../utils/api';
+import './style.css';
+
 
 export default function FarmActivityPage() {
   const [farmActivityName, setFarmActivityName] = useState("");
@@ -18,12 +17,45 @@ export default function FarmActivityPage() {
   const [selectedTime, setSelectedTime] = useState("");
   const [reloadNumberedList, setReloadNumberedList] = useState(false);
 
+  const [currentWeatherData, setCurrentWeatherData] = useState(null);
+  const [forecastWeatherData, setForecastWeatherData] = useState(null);
 
-  // const handleFarmActivitySubmit = () => {
-  //   console.log("Farm Activity:", farmActivityName);
-  //   console.log("Selected Date:", selectedDate);
-  //   console.log("Selected Time:", selectedTime);
-  // };
+ useEffect(() => {
+  // Fetch weather data when the component mounts
+  const fetchWeatherData = async () => {
+    try {
+      const response = await api.get(`/farm/weather/juja/`);
+
+      // Extract relevant weather data from the response
+      const responseData = response.data;
+
+      // Extract and format forecast data
+      const formattedForecast = responseData.forecast_data.list.map(entry => {
+        const time = entry.dt_txt.split(" ")[1]; // Extract time from "dt_txt"
+        const date = new Date(entry.dt_txt.split(" ")[0]); // Create a Date object with the date
+        const dayOfWeek = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date); // Get the day of the week
+
+        return {
+          time,
+          dayOfWeek,
+          temperature: entry.main.temp,
+          condition: entry.weather[0].description,
+        };
+      });
+
+      // Update state with the formatted forecast data
+      setForecastWeatherData(formattedForecast);
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+      // Handle errors or show a toast message
+      toast.error("Error fetching weather data");
+    }
+  };
+
+  fetchWeatherData();  // Call the fetchWeatherData function
+}, []);
+ console.log("data", forecastWeatherData);
+
 
   const handleFarmActivitySubmit = async () => {
     // Prepare the data to be sent to the API
@@ -57,7 +89,6 @@ export default function FarmActivityPage() {
     }
   };
 
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Navbar />
@@ -77,29 +108,20 @@ export default function FarmActivityPage() {
             </div>
 
             {/* Weather Updates */}
-            <div className="w-full p-4">
+            <div className="w-full p-4 weatherSection">
               <h1 className="font-medium uppercase">Weather Updates</h1>
               <div className="mt-4">
-                {/* Weather Cards */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <WeatherCard
-                    day="Monday"
-                    temperature="25°C"
-                    condition="Sunny"
-                    colorClass="bg-orange-400 text-white"
-                  />
-                  <WeatherCard
-                    day="Tuesday"
-                    temperature="22°C"
-                    condition="Cloudy"
-                    colorClass="bg-blue-400 text-white"
-                  />
-                  <WeatherCard
-                    day="Wednesday"
-                    temperature="18°C"
-                    condition="Rainy"
-                    colorClass="bg-gray-400 text-white"
-                  />
+              {/* Weather Cards */}
+                <div className="flex gap-4 overflow-x-auto weatherCardContainer">
+                  {forecastWeatherData && forecastWeatherData.map((forecast, index) => (
+                    <WeatherCard
+                      key={index}
+                      day={forecast.dayOfWeek}
+                      time={forecast.time}
+                      temperature={`${Math.round(forecast.temperature- 273.15)}`}
+                      condition={forecast.condition}
+                    />
+                  ))}
                 </div>
               </div>
             </div>

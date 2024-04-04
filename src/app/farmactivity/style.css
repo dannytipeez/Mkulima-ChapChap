@@ -1,0 +1,15 @@
+/* Add these styles to your CSS file */
+
+.weatherCardContainer {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.weatherCard {
+  flex: 0 0 auto;
+  width: 300px; /* Adjust the width as needed */
+  margin-right: 16px; /* Adjust the margin as needed */
+  scroll-snap-align: start;
+}

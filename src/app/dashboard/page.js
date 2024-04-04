@@ -15,7 +15,6 @@ export default function Dashboard() {
     const [storeData, setStoreData] = useState([]);
 
     // Get current user details
-    const email = localStorage.getItem("email");
     const username = localStorage.getItem("username");
 
     // Fetch data when the component mounts
@@ -41,9 +40,8 @@ export default function Dashboard() {
 
     //set store and storage data
     const store = storeData[0] ? storeData[0] : null;
-    const storage = storeData[0] ? storeData[0] : null;
+    const storage = storageData[0] ? storageData[0] : null;
 
-    //get produce of crops and livestock
 
 
     return (
@@ -56,21 +54,23 @@ export default function Dashboard() {
                     </div>
                     <section className="grid grid-cols-1 gap-4 mainSection">
                         <section className="topSection">
-                            <div className="flex flex-col">
+                             <div className="flex flex-col">
                                 <h3 className="font-medium uppercase">Overview</h3>
                                 <div className="grid gap-4 md:grid-cols-4 sm:grid-cols-2 cardsContainer">
                                     <Card label="Number of Livestock" details={livestockData.length} />
                                     <Card label="Number of crops" details={cropData.length} />
-                                    {store && (
-                                        <Card label="Store Capacity" details={`${store.used_capacity}/${store.capacity}`} />
-                                    )}
+                                    
+                                    {/* Display Store Capacity Card */}
+                                    <Card
+                                        label="Store Capacity"
+                                        details={store ? `${store.used_capacity}/${store.capacity}` : '0/0'}
+                                    />
 
-                                    {storage && (
-                                        <Card label="Storage Capacity" details={`${storage.used_capacity}/${storage.capacity}`} />
-
-                                    )}
-
-
+                                    {/* Display Storage Capacity Card */}
+                                    <Card
+                                        label="Storage Capacity"
+                                        details={storage ? `${storage.used_capacity}/${storage.capacity}` : '0/0'}
+                                    />
                                 </div>
                             </div>
                         </section>

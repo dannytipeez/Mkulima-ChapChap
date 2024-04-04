@@ -9,24 +9,22 @@ import "react-toastify/dist/ReactToastify.css";
 const Settings = () => {
     const [storageCapacity, setStorageCapacity] = useState("");
     const [storeCapacity, setStoreCapacity] = useState("");
-    const [openaiKey, setOpenaiKey] = useState("");
 
-    const handleUpdateSettings = async () => {
-        // try {
-        //     // Make a POST request to update settings
-        //     const response = await api.post("settings/update/", {
-        //         storageCapacity,
-        //         storeCapacity,
-        //         openaiKey,
-        //     });
+   const handleUpdateSettings = async () => {
+        try {
+            // Make a POST request to update capacities
+            const response = await api.post("farm/update-capacity/", {
+                storageCapacity,
+                storeCapacity,
+            });
 
-        //     if (response.status === 200) {
-        //         toast.success("Settings updated successfully");
-        //     }
-        // } catch (error) {
-        //     console.error("Error updating settings:", error);
-        //     toast.error("An error occurred while updating settings");
-        // }
+            if (response.status === 200) {
+                toast.success("Capacities updated successfully");
+            }
+        } catch (error) {
+            console.error("Error updating capacities:", error);
+            toast.error("An error occurred while updating capacities");
+        }
     };
 
     return (
@@ -41,7 +39,7 @@ const Settings = () => {
                         {/* Storage Capacity */}
                         <div className="mt-6">
                             <label className="block text-sm font-medium text-gray-700">
-                                Storage Capacity
+                                Set Storage Capacity
                             </label>
                             <input
                                 type="number"
@@ -55,7 +53,7 @@ const Settings = () => {
                         {/* Store Capacity */}
                         <div className="mt-6">
                             <label className="block text-sm font-medium text-gray-700">
-                                Store Capacity
+                                Set Store Capacity
                             </label>
                             <input
                                 type="number"
@@ -63,20 +61,6 @@ const Settings = () => {
                                 placeholder="Enter store capacity"
                                 value={storeCapacity}
                                 onChange={(e) => setStoreCapacity(e.target.value)}
-                            />
-                        </div>
-
-                        {/* OpenAI Key */}
-                        <div className="mt-6">
-                            <label className="block text-sm font-medium text-gray-700">
-                                OpenAI Key
-                            </label>
-                            <input
-                                type="text"
-                                className="w-full p-2 mt-2 border rounded-lg"
-                                placeholder="Enter OpenAI key"
-                                value={openaiKey}
-                                onChange={(e) => setOpenaiKey(e.target.value)}
                             />
                         </div>
 

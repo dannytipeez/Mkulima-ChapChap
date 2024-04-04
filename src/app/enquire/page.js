@@ -17,23 +17,11 @@ const Enquiry = () => {
 
     // Function to submit a question to the expert
     const submitToExpert = () => {
-        // Perform any necessary actions to submit the question to the expert
-        // You can replace this with your actual logic
         const result = "Expert's answer goes here";
         setExpertResult(result);
     };
 
-    // // Function to submit a question to ChatGPT
-    // const submitToChatGPT = () => {
-    //     // Perform any necessary actions to submit the question to ChatGPT
-    //     // You can replace this with your actual logic
-    //     console.log(chatGPTQuestion);
-    //     const result = "ChatGPT's answer goes here";
-    //     setChatGPTResult(result);
-    // };
-
     const submitToChatGPT = async () => {
-        // Prepare the data to be sent to the API
         const data = {
             "question": chatGPTQuestion,
         };
@@ -55,29 +43,6 @@ const Enquiry = () => {
                 console.error('Error:', error);
             });
     };
-
-
-    //     try {
-    //       // Make a POST request to the API endpoint
-    //       const response = await api.post(`farm/questions/ask/chatgpt/`, data);
-
-    //       if (response.status === 201) {
-    //         // The service was booked successfully
-    //         toast.success(`ChatGPT is thinking...`); // Show a success toast
-    //         // Reset the form by clearing the state
-    //         setChatGPTQuestion("");
-    //         console.log(response);
-    //         setChatGPTResult(response['answer']);
-    //       } else {
-    //         // Handle other response statuses if needed
-    //         toast.error("Failed to ask chatgpt!"); // Show an error toast
-    //       }
-    //     } catch (error) {
-    //       // Handle network errors or request failure
-    //       console.error("Error asking chatgpt:", error);
-    //       toast.error("An error occurred while asking chatgpt... try again later!"); // Show an error toast
-    //     }
-    //   };
 
     return (
         <div className='flex w-full min-h-screen bg-gray-100'>

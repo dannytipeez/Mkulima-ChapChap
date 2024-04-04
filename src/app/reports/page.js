@@ -30,8 +30,8 @@ const Reports = () => {
             };
         };
 
-        fetchData(`farm/produce/?last_days=${selectedTimePeriod}&content_type=17`, setLivestockProduceData);
-        fetchData(`farm/produce/?last_days=${selectedTimePeriod}&content_type=19`, setCropProduceData);
+        fetchData(`farm/produce/?last_days=${selectedTimePeriod}&content_type=13`, setLivestockProduceData);
+        fetchData(`farm/produce/?last_days=${selectedTimePeriod}&content_type=14`, setCropProduceData);
         fetchData('farm/services/', setServiceData);
     }, [selectedTimePeriod]);
 

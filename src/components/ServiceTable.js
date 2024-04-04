@@ -1,7 +1,5 @@
 "use client";
 
-
-// components/NumberedListTable.js
 import React, { useEffect, useState } from "react";
 import api from '../utils/api';
 import { toast } from 'react-toastify';
@@ -19,7 +17,6 @@ const NumberedListTable = ({ reload, numberOfItems }) => {
                 console.log('Error fetching data:', err);
             };
         };
-
         fetchData(`farm/services/`, setServiceData);
     }, [reload]);
 

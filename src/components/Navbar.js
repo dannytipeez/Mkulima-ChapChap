@@ -16,6 +16,7 @@ import {
 import { CgProfile } from "react-icons/cg";
 import { FaRegComments } from "react-icons/fa";
 import { BiMessageSquareDots, BiCalendarEdit } from "react-icons/bi";
+import { GiFarmer } from "react-icons/gi";
 
 import { useDispatch, useSelector } from 'react-redux';
 import { logOut, auth } from '@/redux/features/auth-Slice';
@@ -58,6 +59,8 @@ function Sidebar() {
                             <NavItem icon={<MdOutlineAnalytics />} label="Reports" href="/reports" />
                             {/* Messages */}
                             <NavItem icon={<BiCalendarEdit />} label="Plan Farm Activity" href="/farmactivity" />
+                            <NavItem icon={<GiFarmer />} label="Manage Farm" href="/managefarm" />
+
 
 
                         </div>

@@ -1,28 +1,51 @@
 'use client';
 
+// 'use client';
+
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser, checkAuthenticated, loadUser, auth } from '@/redux/features/auth-Slice';
+import { useRouter } from 'next/navigation';
 
 export default function Register() {
+    const dispatch = useDispatch();
+
     const [formData, setFormData] = useState({
         username: '',
         role: '',
         phone: '',
         email: '',
         password: '',
-        confirmPassword: '',
+        re_password: '',
     });
 
+    const { username, role, phone, email, password, re_password } = formData;
+
     const [errors, setErrors] = useState({});
+    const router = useRouter();
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Implement form validation and login logic here
-    };
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+
+        await dispatch(registerUser({ username, role, phone, email, password, re_password }))
+            .unwrap();
+
+        console.log("Check your email to confirm registration of the account");
+        console.log(formData);
+        router.push('/login');
+    } catch (error) {
+        console.error("Error occurred when registering user:", error);
+        setErrors({ ...errors, registration: "Failed to register user. Please try again later." });
+    }
+};
+
+
 
     return (
         <div className='bg-gray-100 min-h-screen flex flex-col justify-center'>
@@ -31,6 +54,11 @@ export default function Register() {
                 <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
                     <h2 className="text-2xl font-bold text-center mb-4 text-green-600">Sign Up</h2>
                     <form onSubmit={handleSubmit}>
+                    {errors.registration && (
+    <p className="text-red-500 mt-1 p-2">{errors.registration}</p>
+)}
+
+                        {/* Other form inputs... */}
                         <div className="mb-4">
                             <label htmlFor="username" className="block mb-1 text-black">
                                 Username
@@ -58,10 +86,10 @@ export default function Register() {
                                     } rounded-md p-2 text-gray-500`}
                             >
                                 <option value="">Select Role</option>
-                                <option value="admin">Admin</option>
-                                <option value="farmer">Farmer</option>
-                                <option value="agricultural-expert">Agricultural Expert</option>
-                                <option value="service-provider">Service Provider</option>
+                                <option value="1">Admin</option>
+                                <option value="2">Farmer</option>
+                                <option value="3">Agricultural Expert</option>
+                                <option value="4">Service Provider</option>
                             </select>
                             {errors.role && (
                                 <p className="text-red-500 mt-1">{errors.role}</p>
@@ -77,7 +105,8 @@ export default function Register() {
                                 type="text"
                                 id="phone"
                                 name="phone"
-                                value={formData.phone}
+                                required
+                                value={phone}
                                 onChange={handleInputChange}
                                 className={`w-full border ${errors.phone ? 'border-red-500' : 'border-gray-300'
                                     } rounded-md p-2 text-gray-500`}
@@ -96,7 +125,8 @@ export default function Register() {
                                 type="email"
                                 id="email"
                                 name="email"
-                                value={formData.email}
+                                required
+                                value={email}
                                 onChange={handleInputChange}
                                 className={`w-full border ${errors.email ? 'border-red-500' : 'border-gray-300'
                                     } rounded-md p-2 text-gray-500`}
@@ -115,7 +145,9 @@ export default function Register() {
                                 type="password"
                                 id="password"
                                 name="password"
-                                value={formData.password}
+                                required
+                                minLength='6'
+                                value={password}
                                 onChange={handleInputChange}
                                 className={`w-full border ${errors.password ? 'border-red-500' : 'border-gray-300'
                                     } rounded-md p-2 text-gray-500`}
@@ -127,20 +159,21 @@ export default function Register() {
 
                         {/* Confirm Password Input */}
                         <div className="mb-4">
-                            <label htmlFor="confirmPassword" className="block mb-1 text-black">
+                            <label htmlFor="re_password" className="block mb-1 text-black">
                                 Confirm Password
                             </label>
                             <input
                                 type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
+                                id="re_password"
+                                name="re_password"
+                                required
+                                value={re_password}
                                 onChange={handleInputChange}
-                                className={`w-full border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                                className={`w-full border ${errors.re_password ? 'border-red-500' : 'border-gray-300'
                                     } rounded-md p-2 text-gray-500`}
                             />
-                            {errors.confirmPassword && (
-                                <p className="text-red-500 mt-1">{errors.confirmPassword}</p>
+                            {errors.re_password && (
+                                <p className="text-red-500 mt-1">{errors.re_password}</p>
                             )}
                         </div>
 
@@ -149,7 +182,7 @@ export default function Register() {
                                 type="submit"
                                 className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-300"
                             >
-                                Sign
+                                Sign Up
                             </button>
                         </div>
                     </form>
@@ -163,6 +196,5 @@ export default function Register() {
                 </a>
             </div>
         </div>
-
     );
 }

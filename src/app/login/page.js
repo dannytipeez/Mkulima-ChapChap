@@ -1,8 +1,6 @@
 'use client';
 
-
 import { useState } from 'react';
-
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, checkAuthenticated, loadUser, auth } from '@/redux/features/auth-Slice';
 import { useRouter } from 'next/navigation';
@@ -11,20 +9,14 @@ import { useRouter } from 'next/navigation';
 export default function Login() {
     const dispatch = useDispatch();
     const isAuthenticated = useSelector((state) => auth);
-
-
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
     });
-
     const { username, email, password } = formData;
-
     const [errors, setErrors] = useState({});
-
     const router = useRouter();
-
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -42,8 +34,6 @@ export default function Login() {
                     if (isAuthenticated) {
                         router.push('/dashboard');
                     } else {
-                        // Handle the case where authentication failed
-                        // You might want to display an error message
                         console.log("Authentication failed");
                     }
                 });
@@ -52,9 +42,6 @@ export default function Login() {
 
     return (
         <div>
-            {/* {isAuthenticated ? ( */}
-                {/* router.push('/dashboard'), */}
-            {/* ) : ( */}
                 <div className='flex flex-col justify-center min-h-screen bg-gray-100'>
                     <div className='py-4 text-3xl font-medium text-center text-green-500'>Welcome Back to Mkulima Chapchap</div>
 
@@ -135,7 +122,7 @@ export default function Login() {
                     </div>
                     <div className="mt-4 text-center text-gray-500">
                         Forgot your password?&nbsp;
-                        <a href="/resetpassword" className="text-green-500 hover:underline ">
+                        <a href="/reset" className="text-green-500 hover:underline ">
                             Reset Password
                         </a>
                     </div>
