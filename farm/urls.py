@@ -28,6 +28,8 @@ from .views import (
     CropProduceListView,
     ChatGPTView,
     ServiceBookingView,
+    UpdateCapacityView,
+    WeatherDataAPIView,
 )
 from django.views.decorators.csrf import csrf_exempt
 
@@ -105,6 +107,8 @@ urlpatterns = [
         CheckStorageCapacityView.as_view(),
         name="check-storage-capacity",
     ),
+    path("update-capacity/", UpdateCapacityView.as_view(), name="update-capacity"),
+
     path("tools/", ToolListCreateView.as_view(), name="tool-list-create"),
     path(
         "tools/<int:pk>/",
@@ -116,4 +120,5 @@ urlpatterns = [
         ToolMaintenanceView.as_view(),
         name="tool-maintenance",
     ),
+    path('weather/<str:city>/', WeatherDataAPIView.as_view(), name='weather-api'),
 ]

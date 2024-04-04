@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 
 # Model for Farm
 class Farm(models.Model):
+    farmer = models.ForeignKey(
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
+    )
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
     county = models.CharField(max_length=100)  # Field for County
@@ -15,6 +18,15 @@ class Farm(models.Model):
 
     def __str__(self):
         return self.name
+        
+class WeatherData(models.Model):
+    city = models.CharField(max_length=100)
+    current_weather_data = models.JSONField()
+    forecast_data = models.JSONField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"WeatherData for {self.city} at {self.timestamp}"
 
 
 # Model for Farm Activity
@@ -55,6 +67,9 @@ class FarmActivity(models.Model):
 
 # Model for LivestockFF
 class Livestock(models.Model):
+    farmer = models.ForeignKey(
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
+    )
     animal_type = models.CharField(max_length=100)
     number = models.CharField(max_length=100, null=True, blank=True)
     image = models.ImageField(upload_to="livestock_images/", blank=True, null=True)
@@ -66,6 +81,9 @@ class Livestock(models.Model):
 
 # Model for Crop
 class Crop(models.Model):
+    farmer = models.ForeignKey(
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
+    )
     crop_type = models.CharField(max_length=100)
     number = models.CharField(max_length=100, null=True, blank=True)
     frequency = models.CharField(max_length=100, blank=True, null=True)
@@ -76,6 +94,9 @@ class Crop(models.Model):
 
 # Model for Produce
 class Produce(models.Model):
+    farmer = models.ForeignKey(
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
+    )
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField()
     date = models.DateField()
@@ -152,7 +173,7 @@ class Service(models.Model):
     )  # Status of the service
 
     def __str__(self):
-        return f"{self.name} for {self.farmer.username} on {self.date} at {self.time} - Status: {self.status}"
+        return f"{self.name} created on {self.date} at {self.time} - Status: {self.status}"
 
 
 class Question(models.Model):
@@ -163,8 +184,8 @@ class Question(models.Model):
 
     question_text = models.TextField()
     farmer = models.ForeignKey(
-        "accounts.UserAccount", on_delete=models.CASCADE
-    )  # The farmer who asked the question
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
+    )
     date_time = models.DateTimeField(auto_now_add=True)  # Date and time of the question
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default="Pending"
@@ -190,6 +211,9 @@ class Answer(models.Model):
 
 
 class Store(models.Model):
+    farmer = models.ForeignKey(
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
+    )
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE)
     capacity = models.PositiveIntegerField()
     used_capacity = models.PositiveIntegerField()
@@ -208,6 +232,9 @@ class Store(models.Model):
 
 
 class Storage(models.Model):
+    farmer = models.ForeignKey(
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
+    )
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE)
     capacity = models.PositiveIntegerField()
     used_capacity = models.PositiveIntegerField()
@@ -228,6 +255,9 @@ class Tool(models.Model):
     image = models.ImageField(upload_to="tools_images/", blank=True, null=True)
     last_maintenance_date = models.DateField(null=True, blank=False)
     store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True)
+    farmer = models.ForeignKey(
+        "accounts.UserAccount", on_delete=models.CASCADE, null=True, blank=True
+    )
 
     def __str__(self):
         return self.name

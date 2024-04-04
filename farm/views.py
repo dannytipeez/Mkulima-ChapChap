@@ -8,17 +8,11 @@ from django.http import JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
-
-'''third parties'''
-from decouple import config
-OPEN_AI_API_KEY = config('API_KEY')
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
-# from braces.views import CsrfExemptMixin
 
-# from django.views.decorators.csrf import CsrfProtectMixin
 
-# Create your views here.
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -39,6 +33,7 @@ from .models import (
     Storage,
     Store,
     Tool,
+    WeatherData
 )
 from .serializers import (
     FarmSerializer,
@@ -53,7 +48,14 @@ from .serializers import (
     StoreSerializer,
     ToolSerializer,
     ServiceBookingSerializer,
+    WeatherDataSerializer
 )
+
+'''third parties'''
+import requests
+
+from decouple import config
+OPEN_AI_API_KEY = config('API_KEY')
 
 
 # crud views for livestock and crops
@@ -109,52 +111,30 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save()
 
-    # def create(self, request, *args, **kwargs):
-    #     # Check if the user is a service provider
-    #     if request.user.role == "service_provider" or request.user.role == "admin":
-    #         return super().create(request, *args, **kwargs)
-    #     return Response(
-    #         {"detail": "Only service providers can create services."},
-    #         status=status.HTTP_403_FORBIDDEN
-    # )
-
-
-# class ServiceListCreateView(generics.ListCreateAPIView):
-#     queryset = Service.objects.all()
-#     serializer_class = ServiceSerializer
-#     filter_backends = [DjangoFilterBackend]
-#     filterset_fields = ["status", "date", "cost"]
-#     filterset_class = ServiceFilter
-#     permission_classes = [IsAuthenticated]
-
-#     def perform_create(self, serializer):
-#         # Set the farmer booking the service to the current user
-#         serializer.save()  # farmer=self.request.user
-
 
 class ServiceRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
-    filter_class = ServiceFilter  # Specify the filter class
+    filter_class = ServiceFilter
     permission_classes = [IsAuthenticated]
 
-    # def perform_update(self, serializer):
-    #     # Custom logic for updating a service booking
-    #     instance = serializer.save()
-    #     if instance.status == "Completed":
-    #         # Implement your logic for handling completed services here
-    #         pass
+    def get_object(self):
+        obj = super().get_object()
+        print(self.request.user.role)
+        # Check if the user requesting the object is the one who created it
+        if self.request.user.role != '1':
+            raise PermissionDenied("You do not have permission to access this service.")
+        return obj
 
-    # def perform_destroy(self, instance):
-    #     # Custom logic for canceling a service booking
-    #     if instance.status == "Pending":
-    #         # Implement your logic for canceling a pending service here
-    #         instance.status = "Cancelled"
-    #         instance.save()
-    #     else:
-    #         # Handle other cases as needed
-    #         pass
+    def perform_update(self, serializer):
+        # Set the created_by field to the current user during update
+        serializer.save(farmer=self.request.user)
 
+    def perform_destroy(self, instance):
+        # Check if the user requesting the deletion is the one who created it
+        if instance.farmer != self.request.user:
+            raise PermissionDenied("You do not have permission to delete this service.")
+        instance.delete()
 
 # booking service
 class ServiceBookingView(APIView):
@@ -202,7 +182,7 @@ class ServiceBookingView(APIView):
 class FarmActivityListCreateView(generics.ListCreateAPIView):
     queryset = FarmActivity.objects.all()
     serializer_class = FarmActivitySerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         # Check if a similar activity already exists
@@ -227,7 +207,7 @@ class FarmActivityListCreateView(generics.ListCreateAPIView):
 class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FarmActivity.objects.all()
     serializer_class = FarmActivitySerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         # Check if a similar activity already exists
@@ -265,6 +245,7 @@ class FarmActivityRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
 
 class ProduceListCreateView(generics.ListCreateAPIView):
     queryset = Produce.objects.all()
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = ProduceSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
@@ -274,7 +255,7 @@ class ProduceListCreateView(generics.ListCreateAPIView):
         "last_days",
     ]
     filterset_class = ProduceFilter
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class ProduceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -316,6 +297,14 @@ class LivestockProduceListView(generics.ListAPIView):
 class CropProduceListView(generics.ListAPIView):
     serializer_class = ProduceSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProduceFilter
+    filterset_fields = [
+        "producer_type",
+        "producer_id",
+        "date",
+        "last_days",
+    ]
 
     def get_queryset(self):
         # Get the content type for the Crop model
@@ -373,8 +362,6 @@ class ToolMaintenanceView(generics.UpdateAPIView):
         if condition:
             queryset = queryset.filter(condition=condition)
 
-        # Apply additional filters as needed
-        # For example: queryset = queryset.filter(some_other_field=some_value)
 
         # Perform the update on the filtered queryset
         queryset.update(last_maintenance_date=request.data.get("last_maintenance_date"))
@@ -387,31 +374,35 @@ class ToolMaintenanceView(generics.UpdateAPIView):
 
 # store views
 class CheckStoreCapacityView(generics.ListCreateAPIView):
-    store_queryset = Store.objects.all()
-    store = store_queryset[0]
-    available_space = store.capacity - store.used_capacity
     permission_classes = [IsAuthenticated]
 
-    def get(
-        self,
-        request,
-        available_space=available_space,
-        used_capacity=store.used_capacity,
-        *args,
-        **kwargs,
-    ):
-        if available_space <= 0:
+    def get(self, request, *args, **kwargs):
+        store_queryset = Store.objects.all()
+
+        if store_queryset.count() != 0:
+            store = store_queryset[0]
+            available_space = store.capacity - store.used_capacity
+            used_capacity = store.used_capacity
+
+            if available_space <= 0:
+                return Response(
+                    {"message": "Store is full"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
             return Response(
-                {"message": "Store is full"}, status=status.HTTP_400_BAD_REQUEST
+                {
+                    "message": f"Store has ({available_space}) available space",
+                    "available_space": available_space,
+                    "used_space": used_capacity,
+                },
+                status=status.HTTP_200_OK,
             )
-        return Response(
-            {
-                "message": f"Store has ({available_space}) available space",
-                "available_space": available_space,
-                "used_space": used_capacity,
-            },
-            status=status.HTTP_200_OK,
-        )
+        else:
+            return Response(
+                {"message": "There are no stores"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
 
 
 class StoreListCreateView(generics.ListCreateAPIView):
@@ -440,26 +431,52 @@ class StorageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CheckStorageCapacityView(generics.ListCreateAPIView):
-    queryset = Storage.objects.all()
     serializer_class = ToolSerializer
-    storage = queryset[0]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, storage=storage, *args, **kwargs):
-        available_space = storage.capacity - storage.used_capacity
-        if available_space <= 0:
-            return Response(
-                {"message": "Storage is full"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        return Response(
-            {
-                "message": f"Storage has ({available_space}) available space",
-                "available_space": available_space,
-                "used_space": storage.used_capacity,
-            },
-            status=status.HTTP_200_OK,
-        )
+    def get(self, request, *args, **kwargs):
+        queryset = Storage.objects.all()
 
+        if queryset.exists():
+            storage = queryset.first()
+            available_space = storage.capacity - storage.used_capacity
+
+            if available_space <= 0:
+                return Response(
+                    {"message": "Storage is full"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            return Response(
+                {
+                    "message": f"Storage has ({available_space}) available space",
+                    "available_space": available_space,
+                    "used_space": storage.used_capacity,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"message": "There is no storage facility set"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class UpdateCapacityView(APIView):
+    def post(self, request):
+        storage_capacity = request.data.get("storageCapacity")
+        store_capacity = request.data.get("storeCapacity")
+
+        # Update Storage Capacity
+        storage = Storage.objects.first()  # You might want to adjust this query
+        storage.capacity = storage_capacity
+        storage.save()
+
+        # Update Store Capacity
+        store = Store.objects.first()  # You might want to adjust this query
+        store.capacity = store_capacity
+        store.save()
+
+        return Response({"message": "Capacities updated successfully"}, status=status.HTTP_200_OK)
 
 # View for asking a question
 class QuestionCreateView(generics.CreateAPIView):
@@ -483,32 +500,6 @@ class AnswerView(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated]
 
 
-# @method_decorator(csrf_exempt, name="dispatch")
-# class ChatGPTView(View):
-#     def __init__(self):
-#         client = OpenAI()
-
-#     def post(self, request):
-#         question = request.POST.get("question")
-#         # Define your OpenAI API key
-#         api_key = "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"
-#         # api_key = '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' freakoutbond
-
-#         # Make a request to the GPT-3 model
-#         openai.api_key = api_key
-#         response = openai.Completion.create(
-#             engine="text-davinci-002",
-#             prompt=f"Ask GPT-3: {question}",
-#             max_tokens=50,  # Adjust the response length as needed
-#         )
-
-#         answer = response.choices[0].text
-
-#         # Return the answer as JSON
-#         return JsonResponse({"answer": answer})
-
-
-# "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"
 # @method_decorator(csrf_protect, name="dispatch")
 class ChatGPTView(View):
     # authentication_classes = []
@@ -516,15 +507,11 @@ class ChatGPTView(View):
     def post(self, request):
         question = request.POST.get("question")
 
-        OPEN_AI_API_KEY = config('API_KEY')
+        #OPEN_AI_API_KEY = config('API_KEY')
 
-        # print("question", question)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
+        openai.api_key = "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"
 
-        # Define your OpenAI API key
-        # api_key = "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"
-        print(OPEN_AI_API_KEY)
-        # Set up your OpenAI API key
-        openai.api_key = OPEN_AI_API_KEY
+        #openai.api_key = OPEN_AI_API_KEY
 
         # Define the conversation as a list of messages
         conversation = [
@@ -543,3 +530,34 @@ class ChatGPTView(View):
 
         # Return the answer as a JSON response
         return JsonResponse({"answer": answer})
+
+class WeatherDataAPIView(APIView):
+    def get(self, request, city):
+        #OPEN_WEATHERMAP_API_KEY = config('OPEN_WEATHERMAP_API_KEY')
+        OPEN_WEATHERMAP_API_KEY = "4f91f34409c80ba51c4fadad7e9f1a92"
+        print(OPEN_WEATHERMAP_API_KEY)
+        api_key = OPEN_WEATHERMAP_API_KEY  # Replace with your actual API key
+        current_weather, forecast = self.get_weather(api_key, city)
+
+        # Save data to the database
+        weather_data = WeatherData.objects.create(
+            city=city,
+            current_weather_data=current_weather,
+            forecast_data=forecast
+        )
+
+        serializer = WeatherDataSerializer(weather_data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get_weather(self, api_key, city):
+        current_weather_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+        forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}"
+
+        current_weather_response = requests.get(current_weather_url)
+        current_weather_data = current_weather_response.json()
+
+        forecast_response = requests.get(forecast_url)
+        forecast_data = forecast_response.json()
+
+        return current_weather_data, forecast_data

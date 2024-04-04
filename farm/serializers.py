@@ -11,7 +11,14 @@ from .models import (
     Storage,
     Store,
     Tool,
+    WeatherData,
 )
+
+class WeatherDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WeatherData
+        fields = ['city', 'current_weather_data', 'forecast_data', 'timestamp']
+
 
 class FarmSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,11 +55,39 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = Answer
         fields = "__all__"
 
+
 class ProduceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Produce
         fields = '__all__'
 
+    def create(self, validated_data):
+        # Extract the 'image' from the validated data
+        image = validated_data.pop('image', None)
+
+        # Extract the 'content_type' and 'object_id' from the request data
+        content_type_name = self.context['request'].data.get('content_type')
+        object_id = self.context['request'].data.get('object_id')
+
+        # Get the ContentType instance based on the provided name
+        content_type = ContentType.objects.get(model=content_type_name)
+
+        # Call the parent create method
+        instance = super().create(validated_data)
+
+        # Set the GenericForeignKey fields
+        instance.content_type = content_type
+        instance.object_id = object_id
+        instance.save()
+
+        # If an image is provided, set it for the instance
+        if image:
+            instance.image = image
+            instance.save()
+
+        return instance
+
+        
 class StoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Store
