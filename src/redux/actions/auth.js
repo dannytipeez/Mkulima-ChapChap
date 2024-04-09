@@ -142,16 +142,19 @@ export const verify = (uid, token) => async dispatch => {
     };
 
     const body = JSON.stringify({ uid, token });
+    console.log('uid': uid, 'token': token);
 
     try {
         await axios.post(`${process.env.REACT_APP_API_URL}/auth/users/activation/`, body, config);
 
         dispatch({
             type: ACTIVATION_SUCCESS,
+            console.log("activated successfully");
         });
     } catch (err) {
         dispatch({
-            type: ACTIVATION_FAIL
+            type: ACTIVATION_FAIL,
+            console.log("account activation failed!");
         })
     }
 };

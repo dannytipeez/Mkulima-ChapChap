@@ -1,6 +1,7 @@
 // authSlice.jsdashboard
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { ACTIVATION_SUCCESS, ACTIVATION_FAIL } from '../actions/types';
 
 
 const initialState = {
@@ -159,6 +160,40 @@ export const registerUser = createAsyncThunk(
     } catch (err) {
       console.log(err);
       return err.response.data; // Return error data
+    }
+  }
+);
+
+//verify users
+export const verifyUser = createAsyncThunk(
+  'auth/verify',
+  async ({ uid, token }, { dispatch }) => {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const body = JSON.stringify({ uid, token });
+
+    try {
+      await axios.post(
+        `http://localhost:8000/api/v1/auth/users/activation/`,
+        body,
+        config
+      );
+
+      dispatch({
+        type: ACTIVATION_SUCCESS,
+      });
+      console.log("account activation successful!")
+    } catch (err) {
+      dispatch({
+        type: ACTIVATION_FAIL,
+      });
+      console.log("Account activation failed!");
+      console.log(err);
+      throw err;
     }
   }
 );
