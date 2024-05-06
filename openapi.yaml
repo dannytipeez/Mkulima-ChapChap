@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  title: Django Models and URLs OpenAPI Specification
+  description: >-
+    This is an OpenAPI specification generated from Django models and URLs
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /farms/:
+    get:
+      summary: List all farms
+      operationId: ListAllFarms
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farm"
+    post:
+      summary: Create a new farm
+      operationId: CreateFarm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Farm"
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request body
+  /farms/{pk}/:
+    get:
+      summary: Retrieve a farm
+      operationId: RetrieveFarm
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          description: ID of the farm to retrieve
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farm"
+        '404':
+          description: Farm not found
+    put:
+      summary: Update a farm
+      operationId: UpdateFarm
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          description: ID of the farm to update
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Farm"
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request body
+        '404':
+          description: Farm not found
+    delete:
+      summary: Delete a farm
+      operationId: DeleteFarm
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          description: ID of the farm to delete
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Farm not found
+components:
+  schemas:
+    Farm:
+      type: object
+      properties:
+        farmer:
+          type: string
+          description: ID of the farmer
+        name:
+          type: string
+          description: Name of the farm
+        location:
+          type: string
+          description: Location of the farm
+        county:
+          type: string
+          description: County of the farm
+        sub_county:
+          type: string
+          description: Sub-County of the farm
+        farm_size:
+          type: number
+          format: float
+          description: Size of the farm
