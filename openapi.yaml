@@ -5,7 +5,7 @@ info:
     This is an OpenAPI specification generated from Django models and URLs
   version: 1.0.0
 servers:
-  - url: http://localhost:8080
+  - url: http://0.0.0.0:8000
 paths:
   /farms/:
     get:
